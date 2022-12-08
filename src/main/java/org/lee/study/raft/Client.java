@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 
 public class Client {
     public static void main(String[] args) throws Throwable {
-        NetUtil.sendMessageByTcp(new InetSocketAddress("localhost",8080),"hello by util");
+        NetUtil.sendMessageByTcp(new InetSocketAddress("localhost",8080),"测试测试测试");
     }
 
 
