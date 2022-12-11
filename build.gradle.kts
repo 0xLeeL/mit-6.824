@@ -4,6 +4,14 @@ plugins {
 
 
 
+tasks.withType<JavaCompile>{
+    options.encoding = "UTF-8"
+}
+tasks.withType<Javadoc>{
+    options.encoding = "UTF-8"
+}
+
+
 allprojects {
 
     apply(plugin = "java")
@@ -17,19 +25,17 @@ allprojects {
         }
     }
 
-////
-////// 编译java文件时采用的UTF-8， 注意这是指定源码编码的字符集【源文件】
-////    tasks.withType(JavaCompile) {
-////        options.encoding = 'UTF-8'
-////    }
-////// 文档【源文件】
-////    tasks.withType(Javadoc) {
-////        options.encoding = 'UTF-8'
-////    }
     repositories {
         maven { url = uri("https://maven.aliyun.com/repository/public") }
         mavenCentral()
     }
+
+    tasks.withType<JavaCompile>{
+        options.encoding = "UTF-8"
+    }
+    dependencies{
+        implementation("org.slf4j:slf4j-api:2.0.5")
+        implementation("ch.qos.logback:logback-core:1.4.5")
+        implementation("ch.qos.logback:logback-classic:1.4.5")
+    }
 }
-
-
