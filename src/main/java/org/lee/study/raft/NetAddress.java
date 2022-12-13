@@ -8,6 +8,10 @@ public class NetAddress {
         this.port = port;
         this.hostName = hostName;
     }
+    public NetAddress(String hostName, int port) {
+        this.port = port;
+        this.hostName = hostName;
+    }
 
     public int getPort() {
         return port;
