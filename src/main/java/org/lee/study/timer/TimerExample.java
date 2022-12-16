@@ -30,12 +30,19 @@ public class TimerExample {
             }
         },new Date());
 
+        // 方法四：指定具体的时间开始，之后后固定评率执行
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                log.info("----------- 指定延时毫秒数后固定评率执行 -------------- ");
+            }
+        }, 5000, 2000);
         // 方法三：指定延时后固定评率执行
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                log.info("----------- 指定延时后固定评率执行 -------------- ");
+                log.info("----------- 指定具体的时间开始，之后后固定评率执行 -------------- ");
             }
-        }, 5000, 2000);
+        }, new Date(), 2000);
     }
 }

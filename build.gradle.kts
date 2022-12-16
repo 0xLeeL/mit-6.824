@@ -33,9 +33,13 @@ allprojects {
     tasks.withType<JavaCompile>{
         options.encoding = "UTF-8"
     }
+    tasks.test{
+        useJUnitPlatform()
+    }
     dependencies{
 
-        compileOnly("org.projectlombok:lombok:1.18.24")
+        compileOnly(rootProject.libs.lombok)
+        annotationProcessor(rootProject.libs.lombok)
 
         implementation("org.slf4j:slf4j-api:2.0.5")
         implementation("ch.qos.logback:logback-core:1.4.5")
@@ -45,4 +49,5 @@ allprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
     }
+
 }

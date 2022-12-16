@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 @Slf4j
 public class NetUtil {
@@ -32,7 +33,7 @@ public class NetUtil {
     }
 
 
-    public static void tcp(int port) {
+    public static void tcp(int port, Consumer<String> consumer) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             log.info("start to listen port:{} !!!", port);
             while (true) {
@@ -44,7 +45,7 @@ public class NetUtil {
                     log.info("listening is ended!!!");
                     break;
                 }
-                log.info(StringUtil.to(buffer, 0, len));
+                consumer.accept(StringUtil.to(buffer, 0, len));
             }
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
