@@ -2,6 +2,7 @@ package org.lee.study.raft;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.lee.study.raft.heartbeat.HeartBeat;
 import org.lee.study.raft.util.NetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

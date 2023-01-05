@@ -1,6 +1,7 @@
-package org.lee.study.raft;
+package org.lee.study.raft.heartbeat;
 
 import lombok.extern.slf4j.Slf4j;
+import org.lee.study.raft.NetAddress;
 import org.lee.study.raft.util.GlobalTimer;
 import org.lee.study.raft.util.NetUtil;
 

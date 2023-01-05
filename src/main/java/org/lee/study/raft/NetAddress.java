@@ -29,4 +29,12 @@ public class NetAddress {
     public static NetAddress remoteAddr(String hostName, int port) {
         return new NetAddress(hostName, port);
     }
+
+    @Override
+    public String toString() {
+        return "NetAddress{" +
+                "port=" + port +
+                ", hostName='" + hostName + '\'' +
+                '}';
+    }
 }
