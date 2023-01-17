@@ -2,6 +2,7 @@ package org.lee.study.raft.election.application.service;
 
 import org.lee.study.raft.election.application.domain.ElectionResult;
 import org.lee.study.raft.election.application.domain.Message;
+import org.lee.study.raft.election.application.domain.MessageContent;
 import org.lee.study.raft.election.application.port.input.Election;
 import org.lee.study.raft.election.application.port.output.MessageHandler;
 
@@ -17,8 +18,8 @@ public class ElectionService implements Election {
     @Override
     public ElectionResult elect() {
         Message message = messageHandler.receiveMessage();
-        String content = message.content();
-        message.
+        MessageContent content = message.content();
+//        message.
         return new ElectionResult(null, null, List.of());
     }
 }
