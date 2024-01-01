@@ -35,10 +35,17 @@ allprojects {
     }
     tasks.test{
         useJUnitPlatform()
+        jvmArgs(
+            "-Djunit.jupiter.execution.parallel.config.dynamic.factor=8",
+            "-Djunit.jupiter.execution.parallel.config.fixed.parallelism=8",
+        )
     }
     dependencies{
 
         implementation(libs.jctools)
+        implementation(libs.jctools)
+        compileOnly("org.projectlombok", "lombok", "1.18.20")
+        annotationProcessor("org.projectlombok", "lombok", "1.18.20")
         implementation("org.slf4j:slf4j-api:2.0.5")
         implementation("ch.qos.logback:logback-core:1.4.5")
         implementation("ch.qos.logback:logback-classic:1.4.5")
