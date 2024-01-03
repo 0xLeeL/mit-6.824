@@ -11,6 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,9 +24,9 @@ import java.util.stream.IntStream;
 public class LAB1Test {
     private final Logger log = LoggerFactory.getLogger(LAB1Test.class);
 
-   public static int masterPort = 80;
-   public static int worker1 = 81;
-   public static int worker2 = 82;
+    public static int masterPort = 80;
+    public static int worker1 = 81;
+    public static int worker2 = 82;
 
     @Test
     void test_number_sum_test() {
@@ -88,6 +90,79 @@ public class LAB1Test {
     }
 
     @Test
+    void test_worker_fail() throws Exception {
+        List<Long> collect = IntStream.range(0, 1 << 10).mapToLong(d -> d).boxed().collect(Collectors.toList());
+        Master<Long, Long> master = new Master<>(masterPort);
+        Thread.sleep(1000);
+        AtomicReference<Worker<Long, Long>> w1 = new AtomicReference<>();
+        AtomicReference<Worker<Long, Long>> w2 = new AtomicReference<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        CompletableFuture.runAsync(() -> {
+            w1.set(new Worker<>(masterPort, worker1));
+        }, executorService);
+        CompletableFuture.runAsync(() -> {
+            w2.set(new Worker<>(masterPort, worker2));
+        }, executorService);
+        Thread.sleep(2000);
+        w2.get().close();
+        Long submit = master.submit(
+                collect,
+                (li) -> {
+                    int sum = 0;
+                    for (Long aLong : li) {
+                        sum += aLong;
+                    }
+                    return (long) sum;
+                },
+                (result) -> {
+                    log.info("{}", result);
+                    return result.stream().mapToLong(d -> d).sum();
+                }
+        );
+        System.out.println(submit);
+        System.out.println(collect.stream().mapToLong(d -> d).sum());
+        Assertions.assertEquals(collect.stream().mapToLong(d -> d).sum(), submit);
+    }
+
+    @Test
+    void test_worker_all_fail() throws Exception {
+        List<Long> collect = IntStream.range(0, 1 << 10).mapToLong(d -> d).boxed().collect(Collectors.toList());
+        Master<Long, Long> master = new Master<>(masterPort);
+        Thread.sleep(1000);
+        AtomicReference<Worker<Long, Long>> w1 = new AtomicReference<>();
+        AtomicReference<Worker<Long, Long>> w2 = new AtomicReference<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        CompletableFuture.runAsync(() -> {
+            w1.set(new Worker<>(masterPort, worker1));
+        }, executorService);
+        CompletableFuture.runAsync(() -> {
+            w2.set(new Worker<>(masterPort, worker2));
+        }, executorService);
+        Thread.sleep(2000);
+        w2.get().close();
+        w1.get().close();
+        Long submit = master.submit(
+                collect,
+                (li) -> {
+                    int sum = 0;
+                    for (Long aLong : li) {
+                        sum += aLong;
+                    }
+                    return (long) sum;
+                },
+                (result) -> {
+                    log.info("{}", result);
+                    return result.stream().mapToLong(d -> d).sum();
+                }
+        );
+        System.out.println(submit);
+        System.out.println(collect.stream().mapToLong(d -> d).sum());
+        Assertions.assertEquals(collect.stream().mapToLong(d -> d).sum(), submit);
+    }
+
+    @Test
     void test_worker_all() throws Exception {
         List<Long> collect = IntStream.range(0, 1 << 10).mapToLong(d -> d).boxed().collect(Collectors.toList());
         Master<Long, Long> master = new Master<>(masterPort);
@@ -106,7 +181,7 @@ public class LAB1Test {
                 },
                 (result) -> {
                     log.info("{}", result);
-                    return result.stream().mapToLong(d->d).sum();
+                    return result.stream().mapToLong(d -> d).sum();
                 }
         );
         System.out.println(submit);
@@ -120,11 +195,13 @@ public class LAB1Test {
         CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker1));
         Thread.sleep(100000000);
     }
+
     @Test
     void test_worker2_boot() throws InterruptedException {
         CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker2));
         Thread.sleep(100000000);
     }
+
     @Test
     void test_master_boot() {
         List<Long> collect = IntStream.range(0, 1 << 10).mapToLong(d -> d).boxed().collect(Collectors.toList());
@@ -140,7 +217,7 @@ public class LAB1Test {
                 },
                 (result) -> {
                     log.info("{}", result);
-                    return result.stream().mapToLong(d->d).sum();
+                    return result.stream().mapToLong(d -> d).sum();
                 }
         );
         System.out.println(submit);
@@ -166,14 +243,14 @@ public class LAB1Test {
         });
 //        ServerSocket server1 = new ServerSocket(81);
         Socket socket = new Socket("localhost", 80);
-        SocketUtil.objectSend("a",socket.getOutputStream());
+        SocketUtil.objectSend("a", socket.getOutputStream());
         InputStream inputStream = socket.getInputStream();
         Object o = SocketUtil.readObject(inputStream);
         System.out.println(o);
     }
 
     @Test
-    void test_o(){
+    void test_o() {
         System.out.println("xxx");
     }
 }

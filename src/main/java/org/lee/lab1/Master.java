@@ -18,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Master<ARG, RESULT> {
     List<Integer> workers = new CopyOnWriteArrayList<>();
     List<RESULT> results = new CopyOnWriteArrayList<>();
+//    priva
 
     public Master(int port) {
         try {
@@ -103,13 +104,24 @@ public class Master<ARG, RESULT> {
 
     RESULT dispatch(int port, List<ARG> arg,
                     Function1<List<ARG>, RESULT> map) {
+        return doDispatch(0,port,arg,map);
+    }
+    RESULT doDispatch(int times,int port, List<ARG> arg,
+                      Function1<List<ARG>, RESULT> map){
         try (Socket socket = new Socket("localhost", port)) {
             SocketUtil.objectSend(new Task<>(arg, map), socket.getOutputStream());
             return (RESULT) SocketUtil.readObject(socket.getInputStream());
         } catch (Exception e) {
-            log.info(e.getMessage(), e);
+            times++;
+            log.warn("{} times {} failed retry after ",times, port);
+            workers.remove(Integer.valueOf(port));
+            if (workers.isEmpty()){
+                log.info("all worker fail master tackle this task");
+                return map.apply(arg);
+            }
+            return doDispatch(times,workers.get(0),arg,map);
         }
-        return null;
     }
+
 
 }

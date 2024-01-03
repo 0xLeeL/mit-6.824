@@ -29,22 +29,23 @@ public class Worker<RESULT extends Serializable, ARG> {
     }
 
     void read() {
-
-        try {
-            while (true) {
-                log.info("start 监听任务");
-                Socket socket = serverSocket.accept();
-                InputStream stream = socket.getInputStream();
-                Task<RESULT, ARG> o = (Task<RESULT, ARG>) SocketUtil.readObject(stream);
+       CompletableFuture.runAsync(()->{
+           try {
+               while (true) {
+                   log.info("start 监听任务");
+                   Socket socket = serverSocket.accept();
+                   InputStream stream = socket.getInputStream();
+                   Task<RESULT, ARG> o = (Task<RESULT, ARG>) SocketUtil.readObject(stream);
 //                socket.close();
-                log.info("receive task :{}", o);
-                RESULT run = o.run();
-                log.info("worker result is :{}", run);
-                SocketUtil.objectSend(run, socket.getOutputStream());
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+                   log.info("receive task :{}", o);
+                   RESULT run = o.run();
+                   log.info("worker result is :{}", run);
+                   SocketUtil.objectSend(run, socket.getOutputStream());
+               }
+           } catch (IOException | ClassNotFoundException e) {
+               throw new RuntimeException(e);
+           }
+       });
     }
 
     void register() {
@@ -66,4 +67,13 @@ public class Worker<RESULT extends Serializable, ARG> {
             }
         });
     }
+
+    public void close(){
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
