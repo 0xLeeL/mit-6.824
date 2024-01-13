@@ -1,5 +1,6 @@
 package org.lee.common.rpc;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.lee.common.SocketUtil;
 
@@ -72,15 +73,23 @@ public class Rpc {
 
 
     // RPC请求消息类
-    static class ReqMsg {
+    @Data
+    static class ReqMsg implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         public String svcMeth; // 例如 "Raft.AppendEntries"
+        public String clientId;
+        public Object content;
         // ... 其他字段和方法
     }
 
     // RPC响应消息类
-    static class ReplyMsg {
+    @Data
+    static class ReplyMsg implements Serializable {
+        private static final long serialVersionUID = 1L;
         public boolean ok;
         public Object reply;
+        public String serverId;
         // ... 其他字段和方法
     }
 
@@ -105,7 +114,7 @@ public class Rpc {
          * 1. 请求丢失
          * 2. 丢失回复
          * 3. 延迟消息
-         * 4. 完全断开连接
+         * 4. 完全断开连接(无法链接)
          *
          * @param svcMeth
          * @param args
@@ -115,8 +124,12 @@ public class Rpc {
         public boolean call(String svcMeth, Object args, Object reply) {
             // 实现RPC调用逻辑
             try {
+                ReqMsg reqMsg = new ReqMsg();
+                reqMsg.clientId = endName;
+                reqMsg.svcMeth = svcMeth;
+                reqMsg.content = args;
                 socket = new Socket("localhost", serverPort);
-                SocketUtil.objectSend((Serializable) args, socket.getOutputStream());
+                SocketUtil.objectSend(reqMsg, socket.getOutputStream());
                 log.info("客户端开始接收消息");
                 processIlle();
                 processThread = new Thread(() -> {
@@ -131,21 +144,37 @@ public class Rpc {
             return true; // 或者根据实际情况返回false
         }
 
+        //        public void processIlle() {
+//            try {
+//                InputStream inputStream = socket.getInputStream();
+//                sendTimeoutProcess();
+//                // 解决block 之后的问题
+//                Object o = SocketUtil.readObject(inputStream);
+//                cancelTimeoutRecord();
+//                int read = inputStream.read();
+//                while (true) {
+//                    log.info("read:{}", (char) read);
+//                    read = inputStream.read();
+//                    if (read == -1) {
+//                        log.info("处理完成");
+//                        return;
+//                    }
+//                }
+//            } catch (Exception e) {
+//                log.error(e.getMessage(), e);
+//                throw new RuntimeException(e);
+//            } finally {
+//                close();
+//            }
+//        }
         public void processIlle() {
             try {
                 InputStream inputStream = socket.getInputStream();
                 sendTimeoutProcess();
                 // 解决block 之后的问题
-                int read = inputStream.read();
+                Object o = SocketUtil.readObject(inputStream);
                 cancelTimeoutRecord();
-                while (true) {
-                    log.info("read:{}", (char) read);
-                    read = inputStream.read();
-                    if (read == -1) {
-                        log.info("处理完成");
-                        return;
-                    }
-                }
+                log.info("客户端的调用结果：{}", o);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new RuntimeException(e);
@@ -202,6 +231,7 @@ public class Rpc {
 
         ServerSocket serverSocket;
         Runnable process;
+        private final ConcurrentSkipListSet<String> banClients = new ConcurrentSkipListSet<>();
 
         public Server(Runnable process) {
             try {
@@ -238,22 +268,31 @@ public class Rpc {
                     log.info("服务端收到：{}", o);
                     // resp
                     OutputStream outputStream = accept.getOutputStream();
-                    outputStream.write("demo".getBytes(StandardCharsets.UTF_8));
-                    outputStream.flush();
+//                    outputStream.write("demo".getBytes(StandardCharsets.UTF_8));
+//                    outputStream.flush();
+//                    outputStream.close();
+                    ReplyMsg replyMsg = new ReplyMsg();
+                    replyMsg.ok = true;
+                    replyMsg.reply = "demo";
+                    replyMsg.serverId = "1";
+                    SocketUtil.objectSend(replyMsg, outputStream);
                     outputStream.close();
-//                    SocketUtil.objectSend("success", outputStream);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }, "server-thread-" + i++).start();
         }
 
-        public void close(){
+        public void close() {
             try {
                 serverSocket.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public void banClient(String clientId) {
+            banClients.add(clientId);
         }
     }
 
@@ -279,6 +318,12 @@ public class Rpc {
 
         public void setReliable(boolean reliable) {
             this.reliable = reliable;
+        }
+
+        public void banClient(String clientId) {
+            servers.values().forEach(server -> {
+                server.banClient(clientId);
+            });
         }
 
         // 其他网络操作方法
