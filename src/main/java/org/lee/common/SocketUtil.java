@@ -12,10 +12,13 @@ public class SocketUtil {
         objectOutputStream.writeObject(serializable);
         objectOutputStream.flush();
     }
+
     public static void objectSend(Serializable serializable, int port) throws IOException {
-        Socket socket = new Socket("localhost", port);
-        SocketUtil.objectSend(serializable, socket.getOutputStream());
+        try (Socket socket = new Socket("localhost", port)) {
+            SocketUtil.objectSend(serializable, socket.getOutputStream());
+        }
     }
+
     public static Object readObject(InputStream inputStream) throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         return objectInputStream.readObject();

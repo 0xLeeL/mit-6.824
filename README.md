@@ -12,3 +12,10 @@ https://pdos.csail.mit.edu/6.824/labs/lab-mr.html
 
 # 6.5840 Lab 2: Raft
 https://pdos.csail.mit.edu/6.824/labs/lab-raft.html[rpc.go]
+
+- 实现一个rpc
+- 监控、
+- 错误检测、
+- 容错
+- 自动恢复 
+- 并行化、容错、数据分发和负载均衡
