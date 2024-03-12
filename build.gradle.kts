@@ -43,7 +43,6 @@ allprojects {
     dependencies{
 
         implementation(libs.jctools)
-        implementation(libs.jctools)
         compileOnly("org.projectlombok", "lombok", "1.18.20")
         annotationProcessor("org.projectlombok", "lombok", "1.18.20")
         implementation("org.slf4j:slf4j-api:2.0.5")
