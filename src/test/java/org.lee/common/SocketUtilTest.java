@@ -1,7 +1,8 @@
 package org.lee.common;
 
 import org.junit.jupiter.api.Test;
-import org.lee.common.SocketUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +10,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 
+
 public class SocketUtilTest {
+    private final Logger log = LoggerFactory.getLogger(SocketUtilTest.class);
 
     @Test
     public void test_rpc() throws Exception {
@@ -20,7 +23,8 @@ public class SocketUtilTest {
                 while ((socket = server0.accept()) != null) {
                     InputStream stream = socket.getInputStream();
                     Object o = SocketUtil.readObject(stream);
-                    System.out.println(o);
+                    log.info("{}",o);
+                    SocketUtil.objectSend("xxx",socket.getOutputStream());
                 }
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -31,7 +35,7 @@ public class SocketUtilTest {
         SocketUtil.objectSend("a",socket.getOutputStream());
         InputStream inputStream = socket.getInputStream();
         Object o = SocketUtil.readObject(inputStream);
-        System.out.println(o);
+        log.info("{}",o);
     }
 
     @Test

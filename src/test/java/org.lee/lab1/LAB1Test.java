@@ -190,17 +190,17 @@ public class LAB1Test {
     }
 
 
-    @Test
-    void test_worker1_boot() throws InterruptedException {
-        CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker1));
-        Thread.sleep(100000000);
-    }
-
-    @Test
-    void test_worker2_boot() throws InterruptedException {
-        CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker2));
-        Thread.sleep(100000000);
-    }
+//    @Test
+//    void test_worker1_boot() throws InterruptedException {
+//        CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker1));
+//        Thread.sleep(100000000);
+//    }
+//
+//    @Test
+//    void test_worker2_boot() throws InterruptedException {
+//        CompletableFuture.runAsync(() -> new Worker<>(masterPort, worker2));
+//        Thread.sleep(100000000);
+//    }
 
     @Test
     void test_master_boot() {
