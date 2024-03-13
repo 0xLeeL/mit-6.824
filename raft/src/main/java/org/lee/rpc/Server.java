@@ -43,12 +43,13 @@ public class Server {
 
     public void process(Socket accept){
 
-        InputStream inputStream = accept.getInputStream();
-        inputStream.read
-
-
-
-//    AllBytes()
+        InputStream inputStream = null;
+        try {
+            inputStream = accept.getInputStream();
+            inputStream.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
