@@ -1,4 +1,4 @@
-package org.lee.common;
+package org.lee.common.domain;
 
 public class Pair<F, S> {
 

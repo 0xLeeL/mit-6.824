@@ -1,8 +1,6 @@
 package org.lee.rpc;
 
 
-import org.lee.common.JsonUtil;
-import org.lee.common.rpc.Rpc;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +10,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.lee.rpc.common.RpcUtil.readToString;
 
@@ -21,6 +21,18 @@ import static org.lee.rpc.common.RpcUtil.readToString;
  * The class listen command from client(or other server),and response result
  */
 public class Server {
+
+    private static Server  instance = null;
+    public static Server getInstance(){
+        return instance;
+    }
+
+    public static void setInstance(Server instance) {
+        Server.instance = instance;
+    }
+
+
+
     private final Logger log = LoggerFactory.getLogger(Server.class);
     private final ServerSocket serverSocket;
     private final ThreadPoolExecutor poolExecutor;
@@ -82,6 +94,7 @@ public class Server {
 
     private void deal(String path, InputStream inputStream, OutputStream outputStream) throws IOException {
         String reqJson = readToString(inputStream);
+        log.info("server receive:{}", reqJson);
         Object dispatch = dispatcher.dispatch(path, reqJson);
         RpcUtil.sendObj(dispatch, outputStream);
     }

@@ -1,6 +1,6 @@
 package org.lee.rpc.common;
 
-import org.lee.common.JsonUtil;
+import org.lee.common.utils.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

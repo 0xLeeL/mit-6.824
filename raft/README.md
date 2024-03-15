@@ -8,8 +8,16 @@
 5. 服务路由
 
 ## 2. 机器角色
-1. ？
+1. salve
+2. master 
 
 ## 2. append log
 1. master send data
 2. slave receive data
+
+## 3. 心跳检测
+1. 正常请求与回复
+2. 健康检查，健康判断
+3. 超时判断，判断为异常
+
+## 4. 选举

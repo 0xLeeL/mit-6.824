@@ -1,6 +1,6 @@
 package org.lee.rpc;
 
-import org.lee.common.JsonUtil;
+import org.lee.common.utils.JsonUtil;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +25,14 @@ public class Client {
     }
 
 
-    public <T, R> R call(String path, T commend,Class<R> resultClass) {
-        try {
-            OutputStream outputStream = socket.getOutputStream();
+    public <T, R> R call(String path, T commend, Class<R> resultClass) {
+        try (OutputStream outputStream = socket.getOutputStream()) {
             RpcUtil.sendString(path, outputStream);
             RpcUtil.sendObj(commend, outputStream);
             InputStream inputStream = socket.getInputStream();
             String s = RpcUtil.readToString(inputStream);
             log.info("call result is :{}", s);
-            return JsonUtil.fromJson(s,resultClass);
+            return JsonUtil.fromJson(s, resultClass);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
