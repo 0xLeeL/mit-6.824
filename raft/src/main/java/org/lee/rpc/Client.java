@@ -1,7 +1,6 @@
 package org.lee.rpc;
 
 import org.lee.common.JsonUtil;
-import org.lee.common.rpc.Rpc;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.http.HttpClient;
 
 public class Client {
     private static final Logger log = LoggerFactory.getLogger(Client.class);
