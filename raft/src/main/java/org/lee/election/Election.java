@@ -46,7 +46,8 @@ public class Election {
     }
 
     private int proposes() {
-        ThreadUtil.sleep(new Random().nextInt(100));
+        // 为了阻止选票起初就被瓜分，选举超时时间是从一个固定的区间（例如 150-300 毫秒）随机选择。
+        ThreadUtil.sleep(new Random().nextInt(150) + 150);
         return (int) global.getEndpoints()
                 .parallelStream()
                 .filter(
