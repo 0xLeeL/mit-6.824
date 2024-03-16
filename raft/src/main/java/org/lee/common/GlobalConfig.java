@@ -38,6 +38,10 @@ public class GlobalConfig {
         return currentHost;
     }
 
+    public String getCurrentAddr() {
+        return getCurrentHost() + ":" + getCurrentPort();
+    }
+
     public void setCurrentHost(String currentHost) {
         this.currentHost = currentHost;
     }

@@ -3,17 +3,21 @@ package org.lee.election;
 import org.lee.common.Constant;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
+import org.lee.common.utils.ThreadUtil;
+import org.lee.election.domain.CurrentActor;
 import org.lee.election.domain.ProposeResult;
 import org.lee.rpc.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Random;
+
 public class Election {
 
     private static final Logger log = LoggerFactory.getLogger(Endpoint.class);
-    private Global global;
-    private Server server;
-    private GlobalConfig globalConfig;
+    private final Global global;
+    private final Server server;
+    private final GlobalConfig globalConfig;
 
     public Election(Global global, Server server) {
         this.global = global;
@@ -26,7 +30,24 @@ public class Election {
     public void elect() {
 
         global.addEpoch();
-        int acceptNum = (int) global.getEndpoints()
+        int acceptedNum = proposes();
+        log.info("{}'s accepted proposes num is {} ",
+                globalConfig.getCurrentAddr(),
+                acceptedNum);
+        if (isMajority(acceptedNum)) {
+            global.updateActor(CurrentActor.MASTER);
+            syncLog();
+        }
+
+    }
+
+    private void syncLog() {
+        log.info("{} start to sync log", globalConfig.getCurrentAddr());
+    }
+
+    private int proposes() {
+        ThreadUtil.sleep(new Random().nextInt(100));
+        return (int) global.getEndpoints()
                 .parallelStream()
                 .filter(
                         endpoint -> !(endpoint.port() == globalConfig.getCurrentPort()
@@ -35,10 +56,12 @@ public class Election {
                     ProposeResult propose = c.propose();
                     log.info("propose result is :{}", propose);
                     return propose;
-                }).count();
-        log.info("{}:{}'s accepted proposes num is {} ",
-                globalConfig.getCurrentHost(),
-                globalConfig.getCurrentPort(),
-                acceptNum);
+                })
+                .filter(ProposeResult::accept)
+                .count();
+    }
+
+    public boolean isMajority(int num) {
+        return global.isMajority(num);
     }
 }

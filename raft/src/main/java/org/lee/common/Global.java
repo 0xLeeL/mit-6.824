@@ -1,6 +1,6 @@
 package org.lee.common;
 
-import org.lee.election.CurrentActor;
+import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
 import org.lee.hearbeat.MasterStatus;
 
@@ -67,5 +67,9 @@ public class Global {
 
     public synchronized void setAcceptedEpoch(int acceptedEpoch) {
         this.acceptedEpoch = acceptedEpoch;
+    }
+
+    public boolean isMajority(int num){
+        return num > getEndpoints().size() / 2;
     }
 }
