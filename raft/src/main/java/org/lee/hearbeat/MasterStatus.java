@@ -1,6 +1,6 @@
 package org.lee.hearbeat;
 
-public enum MASTER_STATUS {
+public enum MasterStatus {
     HEALTH,
     SUSPEND,
     DOWNED,

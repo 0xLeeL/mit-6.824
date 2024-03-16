@@ -30,12 +30,16 @@ public class Client {
             RpcUtil.sendString(path, outputStream);
             RpcUtil.sendObj(commend, outputStream);
             InputStream inputStream = socket.getInputStream();
-            String s = RpcUtil.readToString(inputStream);
-            log.info("call result is :{}", s);
-            return JsonUtil.fromJson(s, resultClass);
+            R result = RpcUtil.readToObject(inputStream, resultClass);
+            log.info("call result is :{}", result);
+            return result;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public <T> String call(String path, T commend) {
+        return call(path, commend, String.class);
     }
 
     public void connect() {

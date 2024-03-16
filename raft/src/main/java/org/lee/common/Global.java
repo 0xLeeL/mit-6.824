@@ -1,25 +1,71 @@
 package org.lee.common;
 
-import org.lee.hearbeat.MASTER_STATUS;
+import org.lee.election.CurrentActor;
+import org.lee.election.Endpoint;
+import org.lee.hearbeat.MasterStatus;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Global {
-    public static MASTER_STATUS masterStatus;
+    public MasterStatus masterStatus;
+    public CurrentActor currentActor = CurrentActor.CANDIDATE;
 
-    public static synchronized void setMasterStatus(MASTER_STATUS masterStatus) {
-        Global.masterStatus = masterStatus;
-    }
+    private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
+    private final AtomicInteger epoch = new AtomicInteger(0);
+    private int acceptedEpoch = -1;
 
-    public static synchronized void health() {
-        setMasterStatus(MASTER_STATUS.HEALTH);
-    }
-    public static synchronized void downed() {
-        setMasterStatus(MASTER_STATUS.DOWNED);
-    }
-    public static synchronized void suspend() {
-        setMasterStatus(MASTER_STATUS.SUSPEND);
+    public void removeEndpoint(Endpoint endpoint) {
+        endpoints.remove(endpoint);
     }
 
-    public static synchronized MASTER_STATUS getMasterStatus() {
+    public void addEndpoint(Endpoint endpoint) {
+        endpoints.add(endpoint);
+    }
+
+    public Set<Endpoint> getEndpoints() {
+        return Set.copyOf(endpoints);
+    }
+
+
+    public synchronized void setMasterStatus(MasterStatus masterStatus) {
+        this.masterStatus = masterStatus;
+    }
+
+    public synchronized void health() {
+        setMasterStatus(MasterStatus.HEALTH);
+    }
+
+    public synchronized void downed() {
+        setMasterStatus(MasterStatus.DOWNED);
+    }
+
+    public synchronized void suspend() {
+        setMasterStatus(MasterStatus.SUSPEND);
+    }
+
+    public synchronized MasterStatus getMasterStatus() {
         return masterStatus;
+    }
+
+    public int getEpoch() {
+        return epoch.get();
+    }
+
+    public int addEpoch() {
+        return epoch.incrementAndGet();
+    }
+
+    public synchronized void updateActor(CurrentActor currentActor){
+        this.currentActor = currentActor;
+    }
+
+    public synchronized int getAcceptedEpoch() {
+        return acceptedEpoch;
+    }
+
+    public synchronized void setAcceptedEpoch(int acceptedEpoch) {
+        this.acceptedEpoch = acceptedEpoch;
     }
 }

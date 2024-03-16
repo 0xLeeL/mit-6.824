@@ -1,22 +1,44 @@
 package org.lee.common;
 
 public class GlobalConfig {
-    private GlobalConfig(){}
-    private static String masterHost = "localhost";
-    private static int masterPort = 80;
+    public GlobalConfig() {
+    }
 
-    public static String getMasterHost(){
+    private String masterHost = "localhost";
+    private int masterPort = 80;
+    private int currentPort = 80;
+    private String currentHost = "localhost";
+
+
+    public String getMasterHost() {
         return masterHost;
     }
-    public static int getMasterPort(){
+
+    public int getMasterPort() {
         return masterPort;
     }
 
-    public static void setMasterHost(String masterHost) {
-        GlobalConfig.masterHost = masterHost;
+    public void setMasterHost(String masterHost) {
+        this.masterHost = masterHost;
     }
 
-    public static void setMasterPort(int masterPort) {
-        GlobalConfig.masterPort = masterPort;
+    public void setMasterPort(int masterPort) {
+        this.masterPort = masterPort;
+    }
+
+    public void setCurrentPort(int currentPort) {
+        this.currentPort = currentPort;
+    }
+
+    public int getCurrentPort() {
+        return currentPort;
+    }
+
+    public String getCurrentHost() {
+        return currentHost;
+    }
+
+    public void setCurrentHost(String currentHost) {
+        this.currentHost = currentHost;
     }
 }

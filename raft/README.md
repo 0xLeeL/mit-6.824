@@ -21,3 +21,11 @@
 3. 超时判断，判断为异常
 
 ## 4. 选举
+1. 将当前机器从 follower 状态配置为 candidate
+2. 随机 pause， 然后发送消息给所有的 candidate   
+    消息内容以及格式
+   - epoch 任期号+选举号
+- 选举过程中出现版本号比较的时候会出现同步问题
+for example:
+    在认为可以接受
+3. 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose

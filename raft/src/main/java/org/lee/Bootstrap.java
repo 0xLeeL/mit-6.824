@@ -1,16 +1,16 @@
 package org.lee;
 
-import org.lee.common.GlobalConfig;
+import org.lee.election.Election;
 import org.lee.hearbeat.HeartBeatReceiver;
 import org.lee.rpc.Server;
 
 public class Bootstrap {
 
     public void startServer(){
-        int port = GlobalConfig.getMasterPort();
-        Server server = new Server(port);
-        Server.setInstance(server);
+        Server start = Server.start();
         HeartBeatReceiver receiver = new HeartBeatReceiver();
+        receiver.setListener(start);
         receiver.startListenHeartBeat();
+
     }
 }

@@ -1,6 +1,7 @@
 package org.lee.rpc;
 
 
+import org.lee.common.GlobalConfig;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +23,18 @@ import static org.lee.rpc.common.RpcUtil.readToString;
  */
 public class Server {
 
-    private static Server  instance = null;
-    public static Server getInstance(){
-        return instance;
+    public static Server start() {
+        return start(new GlobalConfig().getCurrentPort());
     }
 
-    public static void setInstance(Server instance) {
-        Server.instance = instance;
+    public static Server start(int port) {
+        return new Server(port);
     }
-
 
 
     private final Logger log = LoggerFactory.getLogger(Server.class);
+
+    private final GlobalConfig globalConfig;
     private final ServerSocket serverSocket;
     private final ThreadPoolExecutor poolExecutor;
     private final Dispatcher dispatcher = new Dispatcher();
@@ -54,10 +55,12 @@ public class Server {
 
     private final int port;
 
-    public Server(int serverPort) {
+    public Server(int listenPort) {
         try {
-            this.port = serverPort;
+            this.port = listenPort;
             this.serverSocket = new ServerSocket(port);
+            this.globalConfig = new GlobalConfig();
+            globalConfig.setCurrentPort(listenPort);
             listen();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -105,4 +108,7 @@ public class Server {
     }
 
 
+    public GlobalConfig getGlobalConfig() {
+        return globalConfig;
+    }
 }

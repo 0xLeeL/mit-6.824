@@ -5,7 +5,14 @@ import org.lee.rpc.Server;
 
 public class HeartBeatReceiver {
 
+    private Server listener;
+
+
+    public void setListener(Server listener) {
+        this.listener = listener;
+    }
+
     public void startListenHeartBeat(){
-        Server.getInstance().register(Constant.HEART_BEAT_PATH,new HeartBeatHandler());
+        listener.register(Constant.HEART_BEAT_PATH,new HeartBeatHandler());
     }
 }

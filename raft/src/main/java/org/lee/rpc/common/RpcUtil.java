@@ -52,5 +52,11 @@ public class RpcUtil {
         byte[] pathBytes = inputStream.readNBytes(len);
         return new String(pathBytes, StandardCharsets.UTF_8);
     }
+    public static <T> T readToObject(InputStream inputStream,Class<T> cls) throws IOException {
+        byte[] lenBytes = inputStream.readNBytes(4);
+        int len = RpcUtil.byteToInt(lenBytes);
+        byte[] dataBytes = inputStream.readNBytes(len);
+        return JsonUtil.fromJson(dataBytes,cls);
+    }
 
 }
