@@ -32,3 +32,7 @@
 - [x] 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose
 - [ ] 失败之后如何开启下一轮选举
     - [ ] candidate 直接开启？
+
+
+
+
