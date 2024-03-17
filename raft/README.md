@@ -15,10 +15,12 @@
 - [x] master send data
 - [x] slave receive data
 
-## 3. 心跳检测
+## 3. 心跳检测/健康机制
 - [x] 正常请求与回复
 - [x] 健康检查，健康判断
 - [ ] 超时判断，判断为异常
+- [ ] master 重启恢复
+- [ ] follower 重启恢复
 
 ## 4. 选举
 - [ ] 将当前机器从 follower 状态配置为 candidate
@@ -32,7 +34,9 @@
 - [x] 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose
 - [ ] 失败之后如何开启下一轮选举
     - [ ] candidate 直接开启？
+- [ ] 在途中加入cluster
 
-
+## 5. 配置更新（更新集群总数量）
+- [ ] 增加/减少集群机器的总数量
 
 

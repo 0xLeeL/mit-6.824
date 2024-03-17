@@ -3,6 +3,7 @@ package org.lee.heartbeat;
 import org.lee.common.Constant;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
+import org.lee.common.utils.TimerUtils;
 import org.lee.rpc.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +34,6 @@ public class HeartBeatSender {
     }
 
     public void schedule() {
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                ping();
-            }
-        };
-
-        // 定时任务开始执行后延迟1秒执行，之后每隔2秒执行一次
-        timer.schedule(task, 1000, 2000);
+        TimerUtils.schedule(this::ping, 1000, 2000);
     }
 }

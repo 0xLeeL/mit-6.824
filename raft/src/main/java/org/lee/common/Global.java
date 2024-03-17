@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * runtime context
+ */
 public class Global {
     public MasterStatus masterStatus;
     public CurrentActor currentActor = CurrentActor.CANDIDATE;

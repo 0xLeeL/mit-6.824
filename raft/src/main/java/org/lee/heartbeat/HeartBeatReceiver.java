@@ -5,10 +5,9 @@ import org.lee.rpc.Server;
 
 public class HeartBeatReceiver {
 
-    private Server listener;
+    private final Server listener;
 
-
-    public void setListener(Server listener) {
+    public HeartBeatReceiver(Server listener) {
         this.listener = listener;
     }
 

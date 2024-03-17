@@ -2,6 +2,7 @@ package org.lee.log;
 
 import org.lee.common.Constant;
 import org.lee.common.Global;
+import org.lee.common.utils.TimerUtils;
 import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.Server;
@@ -18,6 +19,18 @@ public class LogSyncer {
         this.global = global;
     }
 
+
+    public void syncing(){
+        TimerUtils.schedule(()->{
+            String entry = getEntry();
+            sync(entry);
+        },1000,2000);
+    }
+
+    private String getEntry(){
+        return "test entry";
+    }
+
     public void sync(String logEntry) {
         int indexOfEpoch = global.incrementIndexOfEpoch();
         List<SyncResult> syncResults = global.getEndpoints()
@@ -30,7 +43,7 @@ public class LogSyncer {
                 .toList();
     }
 
-    public static SyncHandler start(Server server) {
+    public static SyncHandler follow(Server server) {
         SyncHandler handler = new SyncHandler();
         server.register(Constant.LOG_SYNC_PATH, handler);
         return handler;

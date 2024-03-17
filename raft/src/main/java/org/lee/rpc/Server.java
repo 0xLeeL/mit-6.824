@@ -34,8 +34,8 @@ public class Server implements AutoCloseable {
 
     private final Logger log = LoggerFactory.getLogger(Server.class);
 
-    private final GlobalConfig globalConfig;
-    private final ServerSocket serverSocket;
+    private GlobalConfig globalConfig;
+    private ServerSocket serverSocket;
     private final ThreadPoolExecutor poolExecutor;
     private final Dispatcher dispatcher = new Dispatcher();
 
@@ -53,13 +53,22 @@ public class Server implements AutoCloseable {
         );
     }
 
-    private final int port;
 
     public Server(int listenPort) {
+        GlobalConfig config = new GlobalConfig();
+        config.setCurrentPort(listenPort);
+        init(config);
+    }
+
+    public Server(GlobalConfig globalConfig) {
+        init(globalConfig);
+    }
+
+    public void init(GlobalConfig globalConfig) {
         try {
-            this.port = listenPort;
-            this.serverSocket = new ServerSocket(port);
-            this.globalConfig = new GlobalConfig();
+            this.globalConfig = globalConfig;
+            int listenPort = globalConfig.getCurrentPort();
+            this.serverSocket = new ServerSocket(listenPort);
             globalConfig.setCurrentPort(listenPort);
             listen();
         } catch (IOException e) {
@@ -70,7 +79,7 @@ public class Server implements AutoCloseable {
     public CompletableFuture<Void> listen() {
         return CompletableFuture.runAsync(() -> {
             try {
-                log.info("server started listen on :{} ", port);
+                log.info("server started listen on :{} ", globalConfig.getCurrentPort());
                 while (true) {
                     Socket accept = serverSocket.accept();
                     process(accept);
@@ -113,7 +122,7 @@ public class Server implements AutoCloseable {
     }
 
     @Override
-    public void close()  {
+    public void close() {
         try {
             serverSocket.close();
         } catch (IOException e) {

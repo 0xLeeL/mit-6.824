@@ -1,7 +1,7 @@
 package org.lee.rpc;
 
 import org.junit.jupiter.api.Test;
-import org.lee.Bootstrap;
+import org.lee.boot.Bootstrap;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;

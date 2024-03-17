@@ -63,7 +63,7 @@ public class Election {
                 .count();
     }
 
-    public boolean isMajority(int num) {
+    private boolean isMajority(int num) {
         return global.isMajority(num);
     }
 

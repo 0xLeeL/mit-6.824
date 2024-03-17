@@ -18,9 +18,9 @@ public class LogSyncerTest {
         Server server1 = Server.start(p1);
         Server server2 = Server.start(p2);
         Server server3 = Server.start(p3);
-        SyncHandler handler1 = LogSyncer.start(server1);
-        SyncHandler handler2 = LogSyncer.start(server2);
-        SyncHandler handler3 = LogSyncer.start(server3);
+        SyncHandler handler1 = LogSyncer.follow(server1);
+        SyncHandler handler2 = LogSyncer.follow(server2);
+        SyncHandler handler3 = LogSyncer.follow(server3);
 
 
 
