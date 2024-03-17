@@ -1,7 +1,6 @@
 package org.lee;
 
-import org.lee.election.Election;
-import org.lee.hearbeat.HeartBeatReceiver;
+import org.lee.heartbeat.HeartBeatReceiver;
 import org.lee.rpc.Server;
 
 public class Bootstrap {
@@ -12,6 +11,5 @@ public class Bootstrap {
         receiver.setListener(start);
         receiver.startListenHeartBeat();
         return start;
-
     }
 }

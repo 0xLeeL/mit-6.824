@@ -1,4 +1,4 @@
-package org.lee.hearbeat;
+package org.lee.heartbeat;
 
 public enum MasterStatus {
     HEALTH,

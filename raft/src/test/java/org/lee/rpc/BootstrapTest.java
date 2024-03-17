@@ -3,8 +3,9 @@ package org.lee.rpc;
 import org.junit.jupiter.api.Test;
 import org.lee.Bootstrap;
 import org.lee.common.Global;
+import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
-import org.lee.hearbeat.HeartBeatSender;
+import org.lee.heartbeat.HeartBeatSender;
 
 public class BootstrapTest {
 
@@ -12,8 +13,7 @@ public class BootstrapTest {
     void test_startServer(){
         Global global = new Global();
         Server server = new Bootstrap().startServer();
-        HeartBeatSender heartBeatSender = new HeartBeatSender();
-        heartBeatSender.setGlobal(global);
+        HeartBeatSender heartBeatSender = new HeartBeatSender(global, new GlobalConfig());
         heartBeatSender.schedule();
         ThreadUtil.sleep(4000);
         server.close();

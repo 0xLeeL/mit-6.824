@@ -1,4 +1,4 @@
-package org.lee.hearbeat;
+package org.lee.heartbeat;
 
 import org.lee.common.Constant;
 import org.lee.rpc.Server;

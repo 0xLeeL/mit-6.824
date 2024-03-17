@@ -2,7 +2,7 @@ package org.lee.common;
 
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
-import org.lee.hearbeat.MasterStatus;
+import org.lee.heartbeat.MasterStatus;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
