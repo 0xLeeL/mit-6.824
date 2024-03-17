@@ -65,4 +65,9 @@ public class Election {
     public boolean isMajority(int num) {
         return global.isMajority(num);
     }
+
+
+    public Server getServer() {
+        return server;
+    }
 }

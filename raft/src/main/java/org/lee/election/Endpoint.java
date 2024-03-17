@@ -5,6 +5,8 @@ import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.election.domain.Propose;
 import org.lee.election.domain.ProposeResult;
+import org.lee.log.domain.LogEntry;
+import org.lee.log.domain.SyncResult;
 import org.lee.rpc.Client;
 
 import java.util.Comparator;
@@ -31,12 +33,25 @@ public record Endpoint(
                 new Propose(global.getEpoch(), globalConfig.getCurrentPort()),
                 ProposeResult.class
         );
-        // TODO(Lee): handle the result
+    }
+
+    public SyncResult sendLog(LogEntry logEntry) {
+        Client client = new Client(host, port);
+        client.connect();
+        return client.call(
+                Constant.LOG_SYNC_PATH,
+                logEntry,
+                SyncResult.class
+        );
+    }
+
+    public String info() {
+        return host + ":" + port;
     }
 
     @Override
     public int compareTo(Object o) {
-        if (o instanceof Endpoint e){
+        if (o instanceof Endpoint e) {
             return (host + port).compareTo(e.host() + e.port());
         }
         throw new RuntimeException("type error");

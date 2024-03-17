@@ -1,5 +1,6 @@
 package org.lee.rpc;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -7,8 +8,12 @@ import org.slf4j.LoggerFactory;
 
 public class RpcCallTest {
     private final Logger log = LoggerFactory.getLogger(RpcCallTest.class);
+    @AfterEach
+    void after(){
+
+    }
     @Test
-    void test_call(){
+    void test_call() throws Exception {
         int port = 80;
         String path = "aaa";
         String callCommend = "call commend";
@@ -24,5 +29,6 @@ public class RpcCallTest {
         client.connect();
         String call = client.call(path, callCommend, String.class);
         Assertions.assertEquals(result,call);
+        server.close();
     }
 }

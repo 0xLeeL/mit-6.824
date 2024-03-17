@@ -14,6 +14,7 @@ public class Global {
 
     private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
     private final AtomicInteger epoch = new AtomicInteger(0);
+    private final AtomicInteger indexOfEpoch = new AtomicInteger(0);
     private int acceptedEpoch = -1;
 
     public void removeEndpoint(Endpoint endpoint) {
@@ -71,5 +72,12 @@ public class Global {
 
     public boolean isMajority(int num){
         return num > getEndpoints().size() / 2;
+    }
+
+    public int getIndexOfEpoch() {
+        return indexOfEpoch.get();
+    }
+    public int incrementIndexOfEpoch(){
+        return indexOfEpoch.incrementAndGet();
     }
 }

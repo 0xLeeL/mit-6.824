@@ -11,10 +11,11 @@ public class BootstrapTest {
     @Test
     void test_startServer(){
         Global global = new Global();
-        new Bootstrap().startServer();
+        Server server = new Bootstrap().startServer();
         HeartBeatSender heartBeatSender = new HeartBeatSender();
         heartBeatSender.setGlobal(global);
         heartBeatSender.schedule();
-        ThreadUtil.sleep(10000);
+        ThreadUtil.sleep(4000);
+        server.close();
     }
 }

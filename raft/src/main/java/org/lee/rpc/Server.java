@@ -21,7 +21,7 @@ import static org.lee.rpc.common.RpcUtil.readToString;
 /**
  * The class listen command from client(or other server),and response result
  */
-public class Server {
+public class Server implements AutoCloseable {
 
     public static Server start() {
         return start(new GlobalConfig().getCurrentPort());
@@ -110,5 +110,14 @@ public class Server {
 
     public GlobalConfig getGlobalConfig() {
         return globalConfig;
+    }
+
+    @Override
+    public void close()  {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

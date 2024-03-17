@@ -8,7 +8,7 @@ import org.lee.rpc.Server;
 public class ElectionTest {
 
     @Test
-    void test_election() {
+    void test_election() throws Exception {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;
@@ -30,6 +30,9 @@ public class ElectionTest {
         e1.elect();
         e2.elect();
         e3.elect();
+        e1.getServer().close();
+        e2.getServer().close();
+        e3.getServer().close();
     }
 
     Election getElection(int port){
