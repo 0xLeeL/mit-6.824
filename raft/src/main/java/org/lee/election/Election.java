@@ -27,18 +27,19 @@ public class Election {
     }
 
 
-    public void elect() {
+    public boolean elect() {
 
         global.addEpoch();
         int acceptedNum = proposes();
         log.info("{}'s accepted proposes num is {} ",
                 globalConfig.getCurrentAddr(),
                 acceptedNum);
-        if (isMajority(acceptedNum)) {
+        boolean majority = isMajority(acceptedNum);
+        if (majority) {
             global.updateActor(CurrentActor.MASTER);
             syncLog();
         }
-
+        return majority;
     }
 
     private void syncLog() {

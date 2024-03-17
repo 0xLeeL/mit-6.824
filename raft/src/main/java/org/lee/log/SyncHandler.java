@@ -15,4 +15,8 @@ public class SyncHandler implements Handler {
         entries.add(logEntry);
         return SyncResult.success();
     }
+
+    public LinkedList<LogEntry> getEntries() {
+        return entries;
+    }
 }

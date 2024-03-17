@@ -1,5 +1,6 @@
 package org.lee.log;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
@@ -17,9 +18,9 @@ public class LogSyncerTest {
         Server server1 = Server.start(p1);
         Server server2 = Server.start(p2);
         Server server3 = Server.start(p3);
-        LogSyncer.start(server1);
-        LogSyncer.start(server2);
-        LogSyncer.start(server3);
+        SyncHandler handler1 = LogSyncer.start(server1);
+        SyncHandler handler2 = LogSyncer.start(server2);
+        SyncHandler handler3 = LogSyncer.start(server3);
 
 
 
@@ -29,12 +30,15 @@ public class LogSyncerTest {
         global.addEndpoint(new Endpoint(p1, "localhost", global, globalConfig));
         global.addEndpoint(new Endpoint(p2, "localhost", global, globalConfig));
         global.addEndpoint(new Endpoint(p3, "localhost", global, globalConfig));
-        logSyncer.sync("writing operation");
-        logSyncer.sync("writing operation");
-        logSyncer.sync("writing operation");
-        logSyncer.sync("writing operation");
-        logSyncer.sync("writing operation");
-        logSyncer.sync("writing operation");
+        int size = 6;
+        for (int i = 0; i < 6; i++) {
+            logSyncer.sync("writing operation");
+        }
+
+//        server1.getGlobalConfig()
+        Assertions.assertEquals(size, handler1.getEntries().size());
+        Assertions.assertEquals(size, handler2.getEntries().size());
+        Assertions.assertEquals(size, handler3.getEntries().size());
 
         server1.close();
         server2.close();

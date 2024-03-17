@@ -1,35 +1,31 @@
 package org.lee.election;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.rpc.Server;
 
+import java.util.List;
+
 public class ElectionTest {
 
     @Test
-    void test_election() throws Exception {
+    void test_election() {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;
-//        Server server1 = Server.start(p1);
-//        Server server2 = Server.start(p2);
-//        Server server3 = Server.start(p3);
-//
-//        Global global = new Global();
-//        Election election1 = new Election(global,server1.getGlobalConfig());
-//        election1.elect();
-//        Election election2 = new Election(global);
-//        election2.elect();
-//        Election election3 = new Election(global);
-//        election3.elect();
+
         Election e1 = getElection(p1);
         Election e2 = getElection(p2);
         Election e3 = getElection(p3);
 
-        e1.elect();
-        e2.elect();
-        e3.elect();
+        boolean er1 = e1.elect();
+        boolean er2 = e2.elect();
+        boolean er3 = e3.elect();
+        List<Boolean> er11 = List.of(er1, er2, er3);
+        Assertions.assertTrue(er11.contains(true));
+        Assertions.assertTrue(er11.contains(false));
         e1.getServer().close();
         e2.getServer().close();
         e3.getServer().close();

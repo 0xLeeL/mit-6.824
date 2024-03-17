@@ -30,7 +30,9 @@ public class LogSyncer {
                 .toList();
     }
 
-    public static void start(Server server) {
-        server.register(Constant.LOG_SYNC_PATH, new SyncHandler());
+    public static SyncHandler start(Server server) {
+        SyncHandler handler = new SyncHandler();
+        server.register(Constant.LOG_SYNC_PATH, handler);
+        return handler;
     }
 }
