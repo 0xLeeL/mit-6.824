@@ -10,7 +10,7 @@ import org.lee.rpc.Server;
 public class LogSyncerTest {
 
     @Test
-    void test_logSync() throws Exception {
+    void test_logSync() {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;

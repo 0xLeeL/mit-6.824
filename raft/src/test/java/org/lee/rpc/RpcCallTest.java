@@ -13,7 +13,7 @@ public class RpcCallTest {
 
     }
     @Test
-    void test_call() throws Exception {
+    void test_call() {
         int port = 80;
         String path = "aaa";
         String callCommend = "call commend";
