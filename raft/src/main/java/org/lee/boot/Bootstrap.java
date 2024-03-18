@@ -27,8 +27,7 @@ public class Bootstrap {
     }
     public Bootstrap globalConfig(GlobalConfig globalConfig){
         this.globalConfig = globalConfig;
-        return this;
-    }
+        return this;    }
 
     public Server startServer() {
         Server start = Server.start();
