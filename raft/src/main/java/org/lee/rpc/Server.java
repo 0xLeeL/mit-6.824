@@ -85,6 +85,7 @@ public class Server implements AutoCloseable {
                     process(accept);
                 }
             } catch (Exception e) {
+                log.warn("server closed");
                 throw new RuntimeException(e);
             }
         });

@@ -14,4 +14,7 @@ public class HeartBeatReceiver {
     public void startListenHeartBeat(){
         listener.register(Constant.HEART_BEAT_PATH,new HeartBeatHandler());
     }
+    public void startListenHeartBeat(HeartBeatHandler heartBeatHandler){
+        listener.register(Constant.HEART_BEAT_PATH,heartBeatHandler);
+    }
 }

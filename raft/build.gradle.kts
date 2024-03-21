@@ -15,6 +15,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+
 
 }
 

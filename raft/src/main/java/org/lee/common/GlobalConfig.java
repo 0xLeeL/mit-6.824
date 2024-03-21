@@ -1,13 +1,29 @@
 package org.lee.common;
 
-public class GlobalConfig {
-    public GlobalConfig() {
-    }
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class GlobalConfig {
+
+
+    @Builder.Default
     private String masterHost = "localhost";
+    @Builder.Default
     private int masterPort = 80;
+    @Builder.Default
     private int currentPort = 80;
+    @Builder.Default
     private String currentHost = "localhost";
+    @Builder.Default
+    private int pingSeg = 1_000;
+    @Builder.Default
+    private int retryTimes = 2; // if retry 'retryTimes' heartbeat are failed, follower start to election
 
 
     public String getMasterHost() {
@@ -18,13 +34,8 @@ public class GlobalConfig {
         return masterPort;
     }
 
-    public void setMasterHost(String masterHost) {
-        this.masterHost = masterHost;
-    }
 
-    public void setMasterPort(int masterPort) {
-        this.masterPort = masterPort;
-    }
+
 
     public void setCurrentPort(int currentPort) {
         this.currentPort = currentPort;
@@ -40,9 +51,5 @@ public class GlobalConfig {
 
     public String getCurrentAddr() {
         return getCurrentHost() + ":" + getCurrentPort();
-    }
-
-    public void setCurrentHost(String currentHost) {
-        this.currentHost = currentHost;
     }
 }

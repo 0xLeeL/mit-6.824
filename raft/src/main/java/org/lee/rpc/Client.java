@@ -1,6 +1,5 @@
 package org.lee.rpc;
 
-import org.lee.common.utils.JsonUtil;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,18 @@ public class Client {
     private final String host;
     private final Integer port;
     private final Socket socket;
+    private final ClientConfig config;
+    private Runnable sendFail = ()->{};
 
     public Client(String host, Integer port) {
+        this(host,port, new ClientConfig());
+    }
+
+    public Client(String host, Integer port, ClientConfig config) {
         this.host = host;
         this.port = port;
         this.socket = new Socket();
+        this.config = config;
     }
 
 
@@ -29,12 +35,14 @@ public class Client {
         try (OutputStream outputStream = socket.getOutputStream()) {
             RpcUtil.sendString(path, outputStream);
             RpcUtil.sendObj(commend, outputStream);
+            socket.setSoTimeout(config.getTimeoutMill());
             InputStream inputStream = socket.getInputStream();
             R result = RpcUtil.readToObject(inputStream, resultClass);
             log.info("call result is :{}", result);
             return result;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            sendFail.run();
+            return null;
         }
     }
 
@@ -44,9 +52,24 @@ public class Client {
 
     public void connect() {
         try {
+            log.info("connect to {}:{}",host,port);
             socket.connect(new InetSocketAddress(host, port));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void setSendFail(Runnable sendFail) {
+        this.sendFail = sendFail;
+    }
+
+    public void close(){
+        if (socket!=null && !socket.isClosed()){
+            try {
+                socket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
