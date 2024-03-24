@@ -39,7 +39,7 @@ public class RpcCallTest {
             return "result";
         });
         AtomicBoolean timeouted = new AtomicBoolean(false);
-        Client client = new Client("localhost",port,ClientConfig.builder().timeoutMill(100));
+        Client client = new Client("localhost",port, RpcConfig.builder().timeoutMill(100));
         client.setSendFail(()->{
             log.info("setSendFail");
             timeouted.set(true);

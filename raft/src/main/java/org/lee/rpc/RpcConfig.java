@@ -1,19 +1,19 @@
 package org.lee.rpc;
 
 
-public class ClientConfig {
+public class RpcConfig {
     private int timeoutMill = 3_000;
 
 
-    public static ClientConfig builder(){
-        return new ClientConfig();
+    public static RpcConfig builder(){
+        return new RpcConfig();
     }
 
     public int getTimeoutMill() {
         return timeoutMill;
     }
 
-    public ClientConfig timeoutMill(int mill){
+    public RpcConfig timeoutMill(int mill){
         this.timeoutMill = mill;
         return this;
     }

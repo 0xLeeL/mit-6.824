@@ -16,14 +16,14 @@ public class Client {
     private final String host;
     private final Integer port;
     private final Socket socket;
-    private final ClientConfig config;
+    private final RpcConfig config;
     private Runnable sendFail = ()->{};
 
     public Client(String host, Integer port) {
-        this(host,port, new ClientConfig());
+        this(host,port, new RpcConfig());
     }
 
-    public Client(String host, Integer port, ClientConfig config) {
+    public Client(String host, Integer port, RpcConfig config) {
         this.host = host;
         this.port = port;
         this.socket = new Socket();
