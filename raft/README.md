@@ -39,14 +39,12 @@
 - [ ] 发送消息给所有的 candidate   
     - [ ] epoch 任期号+选举号  
     - [x] 随机 pause     
-  
-    [//]: # (- 选举过程中出现版本号比较的时候会出现同步问题)
-    [//]: # (for example:)
-    [//]: # (    在认为可以接受)
+
 - [x] 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose
+- [x] 选举出新的leader之后，leader同步全局状态。
 - [ ] On conversion to candidate, start election:   
     - [x] Increment currentTerm   
-    - [ ] Vote for self   
+    - [x] Vote for self   
     - [ ] Reset election timer   
     - [ ] Send RequestVote RPCs to all other server   
 - [x] If votes received from majority of servers: become leader/master

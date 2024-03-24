@@ -91,7 +91,8 @@ public class Election {
                     return propose;
                 })
                 .filter(ProposeResult::accept)
-                .count();
+                .count()
+                + 1; // 投票给自己
     }
 
     private boolean isMajority(int num) {
