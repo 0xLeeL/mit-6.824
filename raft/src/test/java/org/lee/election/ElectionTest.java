@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
+import org.lee.election.domain.CurrentActor;
 import org.lee.rpc.Server;
 
 import java.util.List;
@@ -20,12 +21,13 @@ public class ElectionTest {
         Election e2 = getElection(p2);
         Election e3 = getElection(p3);
 
-        boolean er1 = e1.elect();
-        boolean er2 = e2.elect();
-        boolean er3 = e3.elect();
-        List<Boolean> er11 = List.of(er1, er2, er3);
-        Assertions.assertTrue(er11.contains(true));
-        Assertions.assertTrue(er11.contains(false));
+        CurrentActor er1 = e1.elect();
+        CurrentActor er2 = e2.elect();
+        CurrentActor er3 = e3.elect();
+        List<CurrentActor> er11 = List.of(er1, er2, er3);
+        Assertions.assertTrue(er11.contains(CurrentActor.FOLLOWER));
+        Assertions.assertTrue(er11.contains(CurrentActor.MASTER));
+        Assertions.assertEquals(2,er11.stream().filter(c->c.equals(CurrentActor.FOLLOWER)).count());
         e1.getServer().close();
         e2.getServer().close();
         e3.getServer().close();

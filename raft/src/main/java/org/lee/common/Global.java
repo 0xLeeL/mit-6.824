@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * runtime context
  */
 public class Global {
-    public MasterStatus masterStatus;
-    public CurrentActor currentActor = CurrentActor.CANDIDATE;
+    public MasterStatus masterStatus = MasterStatus.SUSPEND;
+    private CurrentActor currentActor = CurrentActor.CANDIDATE;
 
     private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
     private final AtomicInteger epoch = new AtomicInteger(0);
@@ -82,5 +82,9 @@ public class Global {
     }
     public int incrementIndexOfEpoch(){
         return indexOfEpoch.incrementAndGet();
+    }
+
+    public CurrentActor getCurrentActor() {
+        return currentActor;
     }
 }

@@ -1,4 +1,4 @@
-package org.lee.election;
+package org.lee.election.handler;
 
 import org.lee.common.Global;
 import org.lee.common.utils.JsonUtil;

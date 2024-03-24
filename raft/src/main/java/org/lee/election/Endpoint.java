@@ -3,6 +3,7 @@ package org.lee.election;
 import org.lee.common.Constant;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
+import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.Propose;
 import org.lee.election.domain.ProposeResult;
 import org.lee.log.domain.LogEntry;
@@ -41,6 +42,22 @@ public record Endpoint(
         return client.call(
                 Constant.LOG_SYNC_PATH,
                 logEntry,
+                SyncResult.class
+        );
+    }
+
+    /**
+     * Tell all servers, election has been done.
+     * 同步master状态给这个endpoint， 告知其已经选举完成
+     * @param actorStatus
+     * @return
+     */
+    public SyncResult syncStatus(ActorStatusEntry actorStatus) {
+        Client client = new Client(host, port);
+        client.connect();
+        return client.call(
+                Constant.MASTER_STATUS_SYNC,
+                actorStatus,
                 SyncResult.class
         );
     }

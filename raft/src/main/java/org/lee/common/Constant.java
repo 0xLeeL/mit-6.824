@@ -5,6 +5,7 @@ public class Constant {
     public static final String HEART_BEAT_PATH = "HEART_BEAT";
     public static final String ELECTION_PATH = "ELECTION";
     public static final String LOG_SYNC_PATH = "LOG_SYNC";
+    public static final String MASTER_STATUS_SYNC = "MASTER_STATUS_SYNC";
     public static final String HEART_REQ = "ping";
     public static final String HEART_RESP = "pong";
 }

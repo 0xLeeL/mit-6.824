@@ -4,12 +4,18 @@ import org.lee.common.Constant;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
+import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.domain.ProposeResult;
+import org.lee.election.handler.ElectionHandler;
+import org.lee.election.handler.SyncStatusHandler;
+import org.lee.heartbeat.MasterStatus;
+import org.lee.log.domain.SyncResult;
 import org.lee.rpc.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Random;
 
 public class Election {
@@ -24,10 +30,23 @@ public class Election {
         this.server = server;
         this.globalConfig = server.getGlobalConfig();
         server.register(Constant.ELECTION_PATH, new ElectionHandler(global));
+        server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(globalConfig,global));
     }
 
 
-    public boolean elect() {
+    /**
+     * @return
+     */
+    public CurrentActor elect() {
+        while (true) {
+            CurrentActor currentActor = doElect();
+            if (CurrentActor.CANDIDATE != currentActor) {
+                return currentActor;
+            }
+        }
+    }
+
+    private CurrentActor doElect() {
 
         global.addEpoch();
         int acceptedNum = proposes();
@@ -38,12 +57,24 @@ public class Election {
         if (majority) {
             global.updateActor(CurrentActor.MASTER);
             syncLog();
+            return CurrentActor.MASTER;
         }
-        return majority;
+        if (MasterStatus.HEALTH.equals(global.getMasterStatus())) {
+            return CurrentActor.FOLLOWER;
+        }
+        return CurrentActor.CANDIDATE;
     }
 
     private void syncLog() {
         log.info("{} start to sync log", globalConfig.getCurrentAddr());
+        List<SyncResult> syncResults = global.getEndpoints().parallelStream()
+                .map(endpoint -> endpoint.syncStatus(
+                        new ActorStatusEntry(
+                                globalConfig.getCurrentHost(),
+                                globalConfig.getCurrentPort(),
+                                CurrentActor.MASTER.name()
+                        )
+                )).toList();
     }
 
     private int proposes() {
