@@ -10,7 +10,7 @@ import org.lee.rpc.Server;
 
 import java.util.List;
 
-public class ElectionTest {
+public class ElectionRaftTest {
 
     @Test
     void test_election() {
@@ -18,9 +18,9 @@ public class ElectionTest {
         int p2 = 82;
         int p3 = 83;
 
-        Pair<Election,Server> e1 = getElection(p1);
-        Pair<Election,Server> e2 = getElection(p2);
-        Pair<Election,Server> e3 = getElection(p3);
+        Pair<ElectionRaft,Server> e1 = getElection(p1);
+        Pair<ElectionRaft,Server> e2 = getElection(p2);
+        Pair<ElectionRaft,Server> e3 = getElection(p3);
 
         CurrentActor er1 = e1.getFirst().elect();
         CurrentActor er2 = e2.getFirst().elect();
@@ -34,15 +34,15 @@ public class ElectionTest {
         e3.getSecond().close();
     }
 
-    Pair<Election,Server> getElection(int port){
+    Pair<ElectionRaft,Server> getElection(int port){
         Server server1 = Server.start(port);
         Global global = new Global();
         GlobalConfig globalConfig = server1.getGlobalConfig();
         global.addEndpoint(new Endpoint(81,"localhost",global,globalConfig));
         global.addEndpoint(new Endpoint(82,"localhost",global,globalConfig));
         global.addEndpoint(new Endpoint(83,"localhost",global,globalConfig));
-        Election election1 = new Election(global,globalConfig);
-        election1.register(server1);
-        return Pair.of(election1, server1);
+        ElectionRaft electionRaft1 = new ElectionRaft(global,globalConfig);
+        electionRaft1.register(server1);
+        return Pair.of(electionRaft1, server1);
     }
 }

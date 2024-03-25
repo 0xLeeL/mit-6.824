@@ -3,6 +3,7 @@ package org.lee.boot;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.election.Election;
+import org.lee.election.ElectionRaft;
 import org.lee.election.domain.CurrentActor;
 import org.lee.heartbeat.HeartBeatReceiver;
 import org.lee.heartbeat.HeartBeatSender;
@@ -40,12 +41,12 @@ public class Bootstrap {
     public Server start() {
         Server server = new Server(this.globalConfig);
         global.setServer(server);
-        Election election = new Election(global, globalConfig);
-        election.register(server);
-        CurrentActor elect = election.elect();
+        Election electionRaft = new ElectionRaft(global, globalConfig);
+        electionRaft.register(server);
+        CurrentActor elect = electionRaft.elect();
         log.info("current status is:{}",elect.name());
         if (CurrentActor.MASTER.equals(elect)){// master
-            HeartBeatSender heartBeatSender = new HeartBeatSender(global,globalConfig);
+            HeartBeatSender heartBeatSender = new HeartBeatSender(global,globalConfig, electionRaft);
             heartBeatSender.schedule();
             LogSyncer.follow(server);
         }else{

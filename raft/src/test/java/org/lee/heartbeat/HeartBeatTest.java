@@ -36,7 +36,7 @@ public class HeartBeatTest {
         });
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setPingSeg(100);
-        HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig);
+        HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, null);
         heartBeatSender.schedule();
         ThreadUtil.sleep(1520);
         Assertions.assertTrue(atomicBoolean.get());
@@ -52,8 +52,8 @@ public class HeartBeatTest {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setPingSeg(100);
         HeartBeatSender heartBeatSender = new HeartBeatSender(
-                global, globalConfig
-        );
+                global, globalConfig,
+                null);
 
         RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
             @Override

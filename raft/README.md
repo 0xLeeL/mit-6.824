@@ -13,9 +13,9 @@
 ## 2. 机器角色
 - [x] salve
   - [x] Respond to RPCs from candidates and leader
-  - [ ]If election timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
+  - [ ]If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
 - [x] leader 
-  - [ ] Upon election: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent election timeouts, and maintain metadata of the all of follower;
+  - [ ] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all of follower;
   - [ ] If command received from client: append entry to local log, respond after entry applied to state machine
   - [ ] If last log index ≥ nextIndex for a follower: send AppendEntries RPC with log entries starting at nextIndex
     - [ ] If successful: update nextIndex and matchIndex for follower
@@ -42,15 +42,15 @@
 
 - [x] 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose
 - [x] 选举出新的leader之后，leader同步全局状态。
-- [ ] On conversion to candidate, start election:   
+- [ ] On conversion to candidate, start electionRaft:   
     - [x] Increment currentTerm   
     - [x] Vote for self   
-    - [ ] Reset election timer   
+    - [ ] Reset electionRaft timer   
     - [ ] Send RequestVote RPCs to all other server   
 - [x] If votes received from majority of servers: become leader/master
 - [ ] If AppendEntries RPC received from new leader: convert to follower
 - [ ] 在途中加入cluster
-- [ ] If election timeout elapses: start new election
+- [ ] If electionRaft timeout elapses: start new electionRaft
 
 ## 5. 配置更新（更新集群总数量）
 - [ ] 增加/减少集群机器的总数量
