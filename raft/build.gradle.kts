@@ -23,4 +23,5 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("--add-opens","java.base/java.lang=ALL-UNNAMED")
 }

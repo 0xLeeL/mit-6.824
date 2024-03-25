@@ -15,7 +15,7 @@
   - [x] Respond to RPCs from candidates and leader
   - [ ]If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
 - [x] leader 
-  - [ ] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all of follower;
+  - [ ] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;
   - [ ] If command received from client: append entry to local log, respond after entry applied to state machine
   - [ ] If last log index ≥ nextIndex for a follower: send AppendEntries RPC with log entries starting at nextIndex
     - [ ] If successful: update nextIndex and matchIndex for follower
@@ -30,7 +30,7 @@
 ## 3. 心跳检测/健康机制
 - [x] 正常请求与回复
 - [x] 健康检查，健康判断
-- [ ] 超时判断，判断为异常
+- [x] 超时判断，判断为异常
 - [ ] master 重启恢复
 - [ ] follower 重启恢复
 

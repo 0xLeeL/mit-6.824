@@ -6,6 +6,8 @@ import org.lee.boot.Bootstrap;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
+import org.lee.election.Election;
+import org.lee.election.domain.CurrentActor;
 import org.lee.rpc.Client;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.Server;
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.mockito.Mockito.*;
 
 
 public class HeartBeatTest {
@@ -47,13 +51,11 @@ public class HeartBeatTest {
     @Test
     void test_ping_timeout() {
         Global global = new Global();
-
-
+        global.setMasterStatus(MasterStatus.HEALTH);
         GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setPingSeg(100);
-        HeartBeatSender heartBeatSender = new HeartBeatSender(
-                global, globalConfig,
-                null);
+        globalConfig.setPingSeg(50);
+        Election election = mock(Election.class);
+        HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, election);
 
         RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
             @Override
@@ -75,9 +77,9 @@ public class HeartBeatTest {
         heartBeatSender.setClientSupplier(() -> rpcCaller);
 
         heartBeatSender.schedule();
-        ThreadUtil.sleep(1520);
-        int failTimes = heartBeatSender.getFailTimes();
-        log.info("fail times:{}", failTimes);
+        ThreadUtil.sleep(200);
+
+        verify(election,times(1)).elect();
 
 
     }

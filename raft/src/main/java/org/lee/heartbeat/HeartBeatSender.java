@@ -5,7 +5,6 @@ import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.TimerUtils;
 import org.lee.election.Election;
-import org.lee.election.ElectionRaft;
 import org.lee.rpc.Client;
 import org.lee.rpc.RpcCaller;
 import org.slf4j.Logger;
@@ -54,20 +53,19 @@ public class HeartBeatSender {
     }
 
     public void schedule() {
-        TimerUtils.schedule(this::ping, 1000, globalConfig.getPingSeg());
+        TimerUtils.schedule(this::ping, 100, globalConfig.getPingSeg());
     }
 
-    public void tryElect() {
+    void tryElect() {
         int fail = failTimes.incrementAndGet();
         log.info("failed {} times", fail);
-        if (fail >= globalConfig.getRetryTimes()) {
-            new ElectionRaft(global, globalConfig).elect();
+        if (fail >= globalConfig.getRetryTimes() && global.masterIsHealth()) {
+            global.setMasterStatus(MasterStatus.SUSPEND);
+            election.elect();
         }
     }
 
-    public int getFailTimes() {
-        return failTimes.get();
-    }
+
 
     public void setClientSupplier(Supplier<RpcCaller<String, String>> clientSupplier) {
         this.clientSupplier = clientSupplier;

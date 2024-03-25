@@ -39,6 +39,10 @@ public class Global {
         this.masterStatus = masterStatus;
     }
 
+    public boolean masterIsHealth(){
+        return MasterStatus.HEALTH.equals(masterStatus);
+    }
+
     public synchronized void health() {
         setMasterStatus(MasterStatus.HEALTH);
     }
