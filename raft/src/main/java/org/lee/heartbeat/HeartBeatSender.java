@@ -19,7 +19,7 @@ public class HeartBeatSender {
     private final AtomicInteger failTimes = new AtomicInteger(0);
 
     private static final Logger log = LoggerFactory.getLogger(HeartBeatSender.class);
-    private final Supplier<RpcCaller<String,String>> clientSupplier;
+    private Supplier<RpcCaller<String,String>> clientSupplier;
     private final GlobalConfig globalConfig;
 
     public HeartBeatSender(Global global, GlobalConfig globalConfig) {
@@ -45,14 +45,14 @@ public class HeartBeatSender {
         String call = client.call(Constant.HEART_BEAT_PATH, Constant.HEART_REQ, String.class);
         health(call);
         client.close();
-        log.info("master health...");
     }
 
     public void health(String call) {
         if (Constant.HEART_RESP.equals(call)) {
             global.health();
+            log.info("master health...");
+            failTimes.set(0);
         }
-        failTimes.set(0);
     }
 
     public void schedule() {
@@ -63,7 +63,15 @@ public class HeartBeatSender {
         int fail = failTimes.incrementAndGet();
         log.info("failed {} times", fail);
         if (fail >= globalConfig.getRetryTimes()) {
-            new Election(global, global.getServer()).elect();
+            new Election(global, globalConfig).elect();
         }
+    }
+
+    public int getFailTimes() {
+        return failTimes.get();
+    }
+
+    public void setClientSupplier(Supplier<RpcCaller<String, String>> clientSupplier) {
+        this.clientSupplier = clientSupplier;
     }
 }

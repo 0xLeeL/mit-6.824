@@ -40,7 +40,8 @@ public class Bootstrap {
     public Server start() {
         Server server = new Server(this.globalConfig);
         global.setServer(server);
-        Election election = new Election(global, server);
+        Election election = new Election(global, globalConfig);
+        election.register(server);
         CurrentActor elect = election.elect();
         log.info("current status is:{}",elect.name());
         if (CurrentActor.MASTER.equals(elect)){// master

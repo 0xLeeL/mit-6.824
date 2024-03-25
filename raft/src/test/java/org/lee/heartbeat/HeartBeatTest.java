@@ -9,11 +9,15 @@ import org.lee.common.utils.ThreadUtil;
 import org.lee.rpc.Client;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 public class HeartBeatTest {
+    private final Logger log = LoggerFactory.getLogger(HeartBeatTest.class);
 
     @Test
     void test_ping() {
@@ -47,7 +51,11 @@ public class HeartBeatTest {
 
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setPingSeg(100);
-        RpcCaller<String,String> rpcCaller = new Client<>("", 0) {
+        HeartBeatSender heartBeatSender = new HeartBeatSender(
+                global, globalConfig
+        );
+
+        RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
             @Override
             public String call(String path, String commend, Class<String> resultClass) {
                 onFailed();
@@ -58,13 +66,18 @@ public class HeartBeatTest {
             public void connect() {
 
             }
+
+            @Override
+            public void onFailed() {
+                heartBeatSender.tryElect();
+            }
         };
-        HeartBeatSender heartBeatSender = new HeartBeatSender(
-                global, () -> rpcCaller, globalConfig
-        );
+        heartBeatSender.setClientSupplier(() -> rpcCaller);
 
         heartBeatSender.schedule();
         ThreadUtil.sleep(1520);
+        int failTimes = heartBeatSender.getFailTimes();
+        log.info("fail times:{}", failTimes);
 
 
     }

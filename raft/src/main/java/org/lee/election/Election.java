@@ -22,15 +22,11 @@ public class Election {
 
     private static final Logger log = LoggerFactory.getLogger(Endpoint.class);
     private final Global global;
-    private final Server server;
     private final GlobalConfig globalConfig;
 
-    public Election(Global global, Server server) {
+    public Election(Global global,GlobalConfig globalConfig) {
         this.global = global;
-        this.server = server;
-        this.globalConfig = server.getGlobalConfig();
-        server.register(Constant.ELECTION_PATH, new ElectionHandler(global));
-        server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(globalConfig,global));
+        this.globalConfig = globalConfig;
     }
 
 
@@ -99,8 +95,8 @@ public class Election {
         return global.isMajority(num);
     }
 
-
-    public Server getServer() {
-        return server;
+    public void register(Server server){
+        server.register(Constant.ELECTION_PATH, new ElectionHandler(global));
+        server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(globalConfig,global));
     }
 }
