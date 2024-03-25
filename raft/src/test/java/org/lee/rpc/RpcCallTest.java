@@ -23,7 +23,7 @@ public class RpcCallTest {
         String result = "call result";
         Server server = new Server(port);
         server.register(path,  requestJson -> result);
-        Client client = new Client("localhost",port);
+        Client<String,String> client = new Client<>("localhost",port);
         client.connect();
         String call = client.call(path, callCommend, String.class);
         Assertions.assertEquals(result,call);
@@ -39,7 +39,7 @@ public class RpcCallTest {
             return "result";
         });
         AtomicBoolean timeouted = new AtomicBoolean(false);
-        Client client = new Client("localhost",port, RpcConfig.builder().timeoutMill(100));
+        Client<String,String> client = new Client<>("localhost",port, RpcConfig.builder().timeoutMill(100));
         client.setSendFail(()->{
             log.info("setSendFail");
             timeouted.set(true);

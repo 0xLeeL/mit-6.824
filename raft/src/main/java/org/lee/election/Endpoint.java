@@ -10,9 +10,6 @@ import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.Client;
 
-import java.util.Comparator;
-import java.util.Objects;
-
 /**
  * This class record the all server in the cluster.
  */
@@ -27,7 +24,7 @@ public record Endpoint(
      * launch an election request
      */
     public ProposeResult propose() {
-        Client client = new Client(host, port);
+        Client<Propose,ProposeResult> client = new Client<>(host, port);
         client.connect();
         return client.call(
                 Constant.ELECTION_PATH,
@@ -37,7 +34,7 @@ public record Endpoint(
     }
 
     public SyncResult sendLog(LogEntry logEntry) {
-        Client client = new Client(host, port);
+        Client<LogEntry,SyncResult> client = new Client<>(host, port);
         client.connect();
         return client.call(
                 Constant.LOG_SYNC_PATH,
@@ -53,7 +50,7 @@ public record Endpoint(
      * @return
      */
     public SyncResult syncStatus(ActorStatusEntry actorStatus) {
-        Client client = new Client(host, port);
+        Client<ActorStatusEntry,SyncResult> client = new Client<>(host, port);
         client.connect();
         return client.call(
                 Constant.MASTER_STATUS_SYNC,

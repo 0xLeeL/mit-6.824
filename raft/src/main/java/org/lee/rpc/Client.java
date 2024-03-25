@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class Client {
+public class Client<T,R> implements RpcCaller<T,R>{
     private static final Logger log = LoggerFactory.getLogger(Client.class);
 
     private final String host;
@@ -31,7 +31,7 @@ public class Client {
     }
 
 
-    public <T, R> R call(String path, T commend, Class<R> resultClass) {
+    public R call(String path, T commend, Class<R> resultClass) {
         try (OutputStream outputStream = socket.getOutputStream()) {
             RpcUtil.sendString(path, outputStream);
             RpcUtil.sendObj(commend, outputStream);
@@ -41,13 +41,9 @@ public class Client {
             log.info("call result is :{}", result);
             return result;
         } catch (IOException e) {
-            sendFail.run();
+            onFailed();
             return null;
         }
-    }
-
-    public <T> String call(String path, T commend) {
-        return call(path, commend, String.class);
     }
 
     public void connect() {
@@ -57,6 +53,11 @@ public class Client {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void onFailed() {
+        sendFail.run();
     }
 
     public void setSendFail(Runnable sendFail) {

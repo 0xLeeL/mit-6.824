@@ -15,7 +15,7 @@ public class BootstrapTest {
         Server server = new Bootstrap().startServer();
         HeartBeatSender heartBeatSender = new HeartBeatSender(global, new GlobalConfig());
         heartBeatSender.schedule();
-        ThreadUtil.sleep(4000);
+//        ThreadUtil.sleep(4000);
         server.close();
     }
 }

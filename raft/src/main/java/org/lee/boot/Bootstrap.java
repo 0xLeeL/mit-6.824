@@ -39,6 +39,7 @@ public class Bootstrap {
 
     public Server start() {
         Server server = new Server(this.globalConfig);
+        global.setServer(server);
         Election election = new Election(global, server);
         CurrentActor elect = election.elect();
         log.info("current status is:{}",elect.name());

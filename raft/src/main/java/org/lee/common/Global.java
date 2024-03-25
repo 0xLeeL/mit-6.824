@@ -3,6 +3,7 @@ package org.lee.common;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
 import org.lee.heartbeat.MasterStatus;
+import org.lee.rpc.Server;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -18,6 +19,7 @@ public class Global {
     private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
     private final AtomicInteger epoch = new AtomicInteger(0);
     private final AtomicInteger indexOfEpoch = new AtomicInteger(0);
+    private Server server;
     private int acceptedEpoch = -1;
 
     public void removeEndpoint(Endpoint endpoint) {
@@ -86,5 +88,13 @@ public class Global {
 
     public CurrentActor getCurrentActor() {
         return currentActor;
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public void setServer(Server server) {
+        this.server = server;
     }
 }

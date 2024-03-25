@@ -4,7 +4,9 @@ import org.lee.common.Constant;
 import org.lee.common.Global;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.TimerUtils;
+import org.lee.election.Election;
 import org.lee.rpc.Client;
+import org.lee.rpc.RpcCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,34 +19,28 @@ public class HeartBeatSender {
     private final AtomicInteger failTimes = new AtomicInteger(0);
 
     private static final Logger log = LoggerFactory.getLogger(HeartBeatSender.class);
-    private final int failTimesOfStartToElection;
-    private final Supplier<Client> clientSupplier;
-    private final int pingSeq;
+    private final Supplier<RpcCaller<String,String>> clientSupplier;
+    private final GlobalConfig globalConfig;
 
     public HeartBeatSender(Global global, GlobalConfig globalConfig) {
-        this(
-                global,
-                globalConfig.getRetryTimes(),
-                ()->new Client(globalConfig.getMasterHost(), globalConfig.getMasterPort()),
-                globalConfig.getPingSeg()
-        );
+        this.global = global;
+        this.globalConfig = globalConfig;
+        this.clientSupplier = () -> new Client<>(globalConfig.getMasterHost(), globalConfig.getMasterPort()) {
+            @Override
+            public void onFailed() {
+                tryElect();
+            }
+        };
     }
 
-    public HeartBeatSender(Global global, int failTimesOfStartToElection, Supplier<Client> clientSupplier, int pingSeq) {
+    public HeartBeatSender(Global global, Supplier<RpcCaller<String,String>> clientSupplier, GlobalConfig globalConfig) {
         this.global = global;
-        this.failTimesOfStartToElection = failTimesOfStartToElection;
+        this.globalConfig = globalConfig;
         this.clientSupplier = clientSupplier;
-        this.pingSeq = pingSeq;
     }
 
     public void ping() {
-        Client client = clientSupplier.get();
-        client.setSendFail(() -> {
-            int failedTimes = failTimes.incrementAndGet();
-            if (failedTimes > failTimesOfStartToElection) {
-                startElection();
-            }
-        });
+        RpcCaller<String,String> client = clientSupplier.get();
         client.connect();
         String call = client.call(Constant.HEART_BEAT_PATH, Constant.HEART_REQ, String.class);
         health(call);
@@ -60,11 +56,14 @@ public class HeartBeatSender {
     }
 
     public void schedule() {
-        TimerUtils.schedule(this::ping, 1000, pingSeq);
+        TimerUtils.schedule(this::ping, 1000, globalConfig.getPingSeg());
     }
 
-    public void startElection() {
-        // TODO(Lee): start to elect
-        // push event ?
+    public void tryElect() {
+        int fail = failTimes.incrementAndGet();
+        log.info("failed {} times", fail);
+        if (fail >= globalConfig.getRetryTimes()) {
+            new Election(global, global.getServer()).elect();
+        }
     }
 }
