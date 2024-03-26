@@ -27,9 +27,9 @@ public class LogSyncerTest {
         Global global = new Global();
         GlobalConfig globalConfig = new GlobalConfig();
         LogSyncer logSyncer = new LogSyncer(global);
-        global.addEndpoint(new Endpoint(p1, "localhost", global, globalConfig));
-        global.addEndpoint(new Endpoint(p2, "localhost", global, globalConfig));
-        global.addEndpoint(new Endpoint(p3, "localhost", global, globalConfig));
+        global.addEndpoint(new Endpoint(p1, "localhost"));
+        global.addEndpoint(new Endpoint(p2, "localhost"));
+        global.addEndpoint(new Endpoint(p3, "localhost"));
         int size = 6;
         for (int i = 0; i < 6; i++) {
             logSyncer.sync("writing operation");

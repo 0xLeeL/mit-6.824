@@ -18,6 +18,15 @@ public class Bootstrap {
     private Global global;
     private GlobalConfig globalConfig;
 
+    public Bootstrap() {
+        if (global == null ){
+            global = new Global();
+        }
+        if (globalConfig == null ){
+            globalConfig = new GlobalConfig();
+        }
+    }
+
 
     public static Bootstrap builder(){
         return new Bootstrap();

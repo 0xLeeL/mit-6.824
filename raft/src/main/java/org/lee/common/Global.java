@@ -1,5 +1,7 @@
 package org.lee.common;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
 import org.lee.heartbeat.MasterStatus;
@@ -12,15 +14,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * runtime context
  */
+@Builder
+@AllArgsConstructor
 public class Global {
+    @Builder.Default
     public MasterStatus masterStatus = MasterStatus.SUSPEND;
+    @Builder.Default
     private CurrentActor currentActor = CurrentActor.CANDIDATE;
 
     private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
     private final AtomicInteger epoch = new AtomicInteger(0);
     private final AtomicInteger indexOfEpoch = new AtomicInteger(0);
     private Server server;
+    @Builder.Default
     private int acceptedEpoch = -1;
+
+
+    public Global() {
+    }
 
     public void removeEndpoint(Endpoint endpoint) {
         endpoints.remove(endpoint);

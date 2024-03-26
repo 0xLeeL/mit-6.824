@@ -1,8 +1,6 @@
 package org.lee.election;
 
 import org.lee.common.Constant;
-import org.lee.common.Global;
-import org.lee.common.GlobalConfig;
 import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.Propose;
 import org.lee.election.domain.ProposeResult;
@@ -15,28 +13,23 @@ import org.lee.rpc.Client;
  */
 public record Endpoint(
         int port,
-        String host,
-        Global global,
-        GlobalConfig globalConfig
-) implements Comparable {
+        String host
+) implements Comparable<Endpoint> {
 
     /**
      * launch an election request
      */
-    public ProposeResult propose() {
-        Client<Propose,ProposeResult> client = new Client<>(host, port);
-        client.connect();
-        return client.call(
+
+    public ProposeResult propose(int epoch, int currentPort) {
+        return call(
                 Constant.ELECTION_PATH,
-                new Propose(global.getEpoch(), globalConfig.getCurrentPort()),
+                new Propose(epoch, currentPort),
                 ProposeResult.class
         );
     }
 
     public SyncResult sendLog(LogEntry logEntry) {
-        Client<LogEntry,SyncResult> client = new Client<>(host, port);
-        client.connect();
-        return client.call(
+        return call(
                 Constant.LOG_SYNC_PATH,
                 logEntry,
                 SyncResult.class
@@ -46,16 +39,24 @@ public record Endpoint(
     /**
      * Tell all servers, election has been done.
      * 同步master状态给这个endpoint， 告知其已经选举完成
+     *
      * @param actorStatus
      * @return
      */
     public SyncResult syncStatus(ActorStatusEntry actorStatus) {
-        Client<ActorStatusEntry,SyncResult> client = new Client<>(host, port);
-        client.connect();
-        return client.call(
+        return call(
                 Constant.MASTER_STATUS_SYNC,
                 actorStatus,
-                SyncResult.class
+                SyncResult.class);
+    }
+
+    private <R, T> R call(String path, T req, Class<R> cls) {
+        Client<T, R> client = new Client<>(host, port);
+        client.connect();
+        return client.call(
+                path,
+                req,
+                cls
         );
     }
 
@@ -64,10 +65,8 @@ public record Endpoint(
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof Endpoint e) {
+    public int compareTo(Endpoint e) {
             return (host + port).compareTo(e.host() + e.port());
-        }
-        throw new RuntimeException("type error");
+
     }
 }

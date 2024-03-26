@@ -38,9 +38,9 @@ public class ElectionRaftTest {
         Server server1 = Server.start(port);
         Global global = new Global();
         GlobalConfig globalConfig = server1.getGlobalConfig();
-        global.addEndpoint(new Endpoint(81,"localhost",global,globalConfig));
-        global.addEndpoint(new Endpoint(82,"localhost",global,globalConfig));
-        global.addEndpoint(new Endpoint(83,"localhost",global,globalConfig));
+        global.addEndpoint(new Endpoint(81,"localhost"));
+        global.addEndpoint(new Endpoint(82,"localhost"));
+        global.addEndpoint(new Endpoint(83,"localhost"));
         ElectionRaft electionRaft1 = new ElectionRaft(global,globalConfig);
         electionRaft1.register(server1);
         return Pair.of(electionRaft1, server1);

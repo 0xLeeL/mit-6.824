@@ -10,7 +10,7 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度,%msg：日志消息，%n是换行符-->
             <pattern>
-                %cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %magenta(%-32thread) %green(%-5level) %blue(%-32logger:%-4line) %msg%n
+                %cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %magenta(%-32thread) %green(%-5level) %blue(%logger:%-4line) %msg%n
             </pattern>
         </encoder>
     </appender>

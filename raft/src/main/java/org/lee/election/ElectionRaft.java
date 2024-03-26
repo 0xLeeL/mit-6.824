@@ -82,7 +82,7 @@ public class ElectionRaft implements Election {
                         endpoint -> !(endpoint.port() == globalConfig.getCurrentPort()
                                 && globalConfig.getCurrentHost().equals(endpoint.host()))
                 ).map(c -> {
-                    ProposeResult propose = c.propose();
+                    ProposeResult propose = c.propose(global.getEpoch(), globalConfig.getCurrentPort());
                     log.info("propose result is :{}", propose);
                     return propose;
                 })
