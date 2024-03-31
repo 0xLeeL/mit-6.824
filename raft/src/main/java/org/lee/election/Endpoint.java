@@ -66,7 +66,12 @@ public record Endpoint(
 
     @Override
     public int compareTo(Endpoint e) {
-            return (host + port).compareTo(e.host() + e.port());
+        return (host + port).compareTo(e.host() + e.port());
+    }
 
+
+    public static Endpoint build(String addr) {
+        String[] split = addr.split(":");
+        return new Endpoint(Integer.parseInt(split[1]), split[0]);
     }
 }

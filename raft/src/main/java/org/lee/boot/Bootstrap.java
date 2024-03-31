@@ -12,6 +12,12 @@ import org.lee.rpc.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 
 public class Bootstrap {
     private final Logger log = LoggerFactory.getLogger(Bootstrap.class);
@@ -19,26 +25,45 @@ public class Bootstrap {
     private GlobalConfig globalConfig;
 
     public Bootstrap() {
-        if (global == null ){
+        if (global == null) {
             global = new Global();
         }
-        if (globalConfig == null ){
+        if (globalConfig == null) {
             globalConfig = new GlobalConfig();
         }
     }
 
 
-    public static Bootstrap builder(){
+    public static Bootstrap builder() {
         return new Bootstrap();
     }
 
-    public Bootstrap global(Global global){
+    public Bootstrap global(Global global) {
         this.global = global;
         return this;
     }
-    public Bootstrap globalConfig(GlobalConfig globalConfig){
+
+    public Bootstrap globalConfig(GlobalConfig globalConfig) {
         this.globalConfig = globalConfig;
-        return this;    }
+        return this;
+    }
+
+
+    public Bootstrap configFile(String filePath) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileReader(filePath));
+            parseProperties(properties);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
+
+    private Bootstrap parseProperties(Properties properties){
+        this.globalConfig = GlobalConfig.parseProperties(properties);
+        return this;
+    }
 
     public Server startServer() {
         Server start = Server.start();
@@ -50,20 +75,29 @@ public class Bootstrap {
     public Server start() {
         Server server = new Server(this.globalConfig);
         global.setServer(server);
+        globalConfig.getServers().forEach(global::addEndpoint);
+        log.info("servers is:{}", global.getEndpoints());
         Election electionRaft = new ElectionRaft(global, globalConfig);
         electionRaft.register(server);
         CurrentActor elect = electionRaft.elect();
-        log.info("current status is:{}",elect.name());
-        if (CurrentActor.MASTER.equals(elect)){// master
-            HeartBeatSender heartBeatSender = new HeartBeatSender(global,globalConfig, electionRaft);
+        log.info("current status is:{}", elect.name());
+        if (CurrentActor.MASTER.equals(elect)) {// master
+            HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, electionRaft);
             heartBeatSender.schedule();
             LogSyncer.follow(server);
-        }else{
+        } else {
             HeartBeatReceiver heartBeatReceiver = new HeartBeatReceiver(server);
             heartBeatReceiver.startListenHeartBeat();
             LogSyncer logSyncer = new LogSyncer(global);
             logSyncer.syncing();
         }
         return server;
+    }
+
+    public static void main(String[] args) {
+        Bootstrap bootstrap = new Bootstrap();
+        String configFile = System.getProperty("config.file");
+        bootstrap.configFile(configFile);
+        bootstrap.start();
     }
 }
