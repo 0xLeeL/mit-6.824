@@ -12,7 +12,7 @@ public class Dispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(Dispatcher.class);
     private final Map<String,Handler> handlerMap = new ConcurrentHashMap<>();
-    public <T> Object dispatch(String path, String requestJson){
+    public Object dispatch(String path, String requestJson){
         Handler objectObjectHandler = handlerMap.get(path);
         if (Objects.isNull(objectObjectHandler)){
             log.error("path:{} 404",path);

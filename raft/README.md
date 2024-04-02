@@ -25,7 +25,8 @@
 - [x] master send data
 - [x] slave receive data
 - [ ] If RPC request or response contains term T > currentTerm: set currentTerm = T, convert to follower (§5.1)
-
+- [ ] 日志状态追加，如果加入到一个新的集群或者日志同步过程中落后了，需要请求master或者告知master同步日志状态到master的状态
+  - [ ] 处理在同步的时候同时还会存在日志不断追加的过程，这个过程怎么进行管理
 
 ## 3. 心跳检测/健康机制
 - [x] 正常请求与回复
@@ -35,19 +36,18 @@
 - [ ] follower 重启恢复
 
 ## 4. 选举
-- [ ] 将当前机器从 follower 状态配置为 candidate
-- [ ] 发送消息给所有的 candidate   
-    - [ ] epoch 任期号+选举号  
-    - [x] 随机 pause     
-
+- [x] 将当前机器从 follower 状态配置为 candidate
+- [x] 发送消息给所有的 candidate   
+    - [x] epoch 任期号+选举号  
+    - [x] 随机 pause
 - [x] 接受来自其他 candidate 的消息，并且比较epoch 来判断是否接受 propose
 - [x] 选举出新的leader之后，leader同步全局状态。
 - [ ] On conversion to candidate, start electionRaft:   
     - [x] Increment currentTerm   
     - [x] Vote for self   
     - [ ] Reset electionRaft timer   
-    - [ ] Send RequestVote RPCs to all other server   
-- [x] If votes received from majority of servers: become leader/master
+    - [ ] Send RequestVote RPCs to all others server   
+- [x] If votes received from the majority of servers: become leader/master
 - [ ] If AppendEntries RPC received from new leader: convert to follower
 - [ ] 在途中加入cluster
 - [ ] If electionRaft timeout elapses: start new electionRaft

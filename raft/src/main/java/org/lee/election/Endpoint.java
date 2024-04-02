@@ -1,5 +1,6 @@
 package org.lee.election;
 
+import lombok.extern.slf4j.Slf4j;
 import org.lee.common.Constant;
 import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.Propose;
@@ -11,6 +12,7 @@ import org.lee.rpc.Client;
 /**
  * This class record the all server in the cluster.
  */
+@Slf4j
 public record Endpoint(
         int port,
         String host

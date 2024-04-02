@@ -6,8 +6,10 @@ import org.lee.common.utils.JsonUtil;
 import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.CurrentActor;
 import org.lee.heartbeat.MasterStatus;
+import org.lee.log.LogSyncer;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.Handler;
+import org.lee.rpc.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

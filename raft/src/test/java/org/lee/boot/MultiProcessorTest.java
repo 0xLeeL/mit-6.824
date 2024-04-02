@@ -40,11 +40,12 @@ public class MultiProcessorTest {
                 // 程序会在这里暂停，等待用户输入
                 String userInput = scanner.nextLine();
                 Set<String> q = Set.of("q", "exit", "stop");
-                log.info("received");
+                log.info("received:{}", userInput);
                 if (q.contains(userInput)) {
                     MultiProcessor.exitProcess(process1.pid());
                     MultiProcessor.exitProcess(process2.pid());
                     MultiProcessor.exitProcess(process3.pid());
+                    System.exit(-1);
                 }
             }
         }).start();

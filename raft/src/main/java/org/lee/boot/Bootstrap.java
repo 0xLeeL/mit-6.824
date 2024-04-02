@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 
@@ -74,6 +72,8 @@ public class Bootstrap {
 
     public Server start() {
         Server server = new Server(this.globalConfig);
+        LogSyncer.follow(server);
+
         global.setServer(server);
         globalConfig.getServers().forEach(global::addEndpoint);
         log.info("servers is:{}", global.getEndpoints());
@@ -82,14 +82,13 @@ public class Bootstrap {
         CurrentActor elect = electionRaft.elect();
         log.info("current status is:{}", elect.name());
         if (CurrentActor.MASTER.equals(elect)) {// master
-            HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, electionRaft);
-            heartBeatSender.schedule();
-            LogSyncer.follow(server);
-        } else {
             HeartBeatReceiver heartBeatReceiver = new HeartBeatReceiver(server);
             heartBeatReceiver.startListenHeartBeat();
             LogSyncer logSyncer = new LogSyncer(global);
             logSyncer.syncing();
+        } else {
+            HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, electionRaft);
+            heartBeatSender.schedule();
         }
         return server;
     }
