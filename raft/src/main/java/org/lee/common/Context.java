@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Builder
 @AllArgsConstructor
-public class Global {
+public class Context {
     @Builder.Default
     public MasterStatus masterStatus = MasterStatus.SUSPEND;
     @Builder.Default
@@ -30,7 +30,7 @@ public class Global {
     private int acceptedEpoch = -1;
 
 
-    public Global() {
+    public Context() {
     }
 
     public void removeEndpoint(Endpoint endpoint) {

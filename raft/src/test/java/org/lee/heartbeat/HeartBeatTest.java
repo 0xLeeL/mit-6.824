@@ -3,11 +3,11 @@ package org.lee.heartbeat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.boot.Bootstrap;
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
 import org.lee.election.Election;
-import org.lee.election.domain.CurrentActor;
+import org.lee.heartbeat.handler.HeartBeatHandler;
 import org.lee.rpc.Client;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.Server;
@@ -25,12 +25,12 @@ public class HeartBeatTest {
 
     @Test
     void test_ping() {
-        Global global = new Global();
+        Context context = new Context();
         Server server = new Bootstrap().startServer();
         HeartBeatReceiver receiver = new HeartBeatReceiver(server);
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         AtomicInteger heartbeatTimes = new AtomicInteger(0);
-        receiver.startListenHeartBeat(new HeartBeatHandler() {
+        receiver.startListenHeartBeat(new HeartBeatHandler(context) {
             @Override
             public String handle(String requestJson) {
                 atomicBoolean.set(true);
@@ -40,7 +40,7 @@ public class HeartBeatTest {
         });
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setPingSeg(100);
-        HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, null);
+        HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, null);
         heartBeatSender.schedule();
         ThreadUtil.sleep(1520);
         Assertions.assertTrue(atomicBoolean.get());
@@ -50,12 +50,12 @@ public class HeartBeatTest {
 
     @Test
     void test_ping_timeout() {
-        Global global = new Global();
-        global.setMasterStatus(MasterStatus.HEALTH);
+        Context context = new Context();
+        context.setMasterStatus(MasterStatus.HEALTH);
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setPingSeg(50);
         Election election = mock(Election.class);
-        HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, election);
+        HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, election);
 
         RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
             @Override

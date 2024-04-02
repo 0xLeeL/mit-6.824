@@ -1,28 +1,33 @@
 package org.lee.log;
 
 import org.lee.common.Constant;
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.utils.ThreadUtil;
 import org.lee.common.utils.TimerUtils;
+import org.lee.election.Endpoint;
 import org.lee.log.domain.FailAnalyze;
 import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
+import org.lee.log.handler.LogSyncHandler;
 import org.lee.rpc.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class LogSyncer {
     private final Logger log = LoggerFactory.getLogger(LogSyncer.class);
-    private final Global global;
+    private final Context context;
     private final ThreadPoolExecutor pool = ThreadUtil.poolOfIO("Log-Fail-Recovery");
-    private final Set<FailAnalyze> syncFailedEndpoints = new ConcurrentSkipListSet<>();
+    private final Map<Endpoint, FailAnalyze> syncFailedEndpoints = new ConcurrentHashMap<>();
 
-    public LogSyncer(Global global) {
-        this.global = global;
+    public LogSyncer(Context context) {
+        this.context = context;
     }
 
 
@@ -38,20 +43,20 @@ public class LogSyncer {
     }
 
     public void sync(String logEntry) {
-        int indexOfEpoch = global.incrementIndexOfEpoch();
-        int epoch = global.getEpoch();
-        global.getEndpoints()
-                .stream()
-                .filter(endpoint -> !syncFailedEndpoints.contains(endpoint))
+        int indexOfEpoch = context.incrementIndexOfEpoch();
+        int epoch = context.getEpoch();
+        context.getEndpoints()
+                .parallelStream()
+                .filter(endpoint -> !syncFailedEndpoints.containsKey(endpoint))
                 .forEach(endpoint -> {
                     try {
-                        SyncResult syncResult = endpoint.sendLog(new LogEntry(global.getEpoch(), logEntry, indexOfEpoch));
+                        SyncResult syncResult = endpoint.sendLog(new LogEntry(context.getEpoch(), logEntry, indexOfEpoch));
                         log.info("{} syncing result is :{}", endpoint.info(), syncResult);
-                        if (!syncResult.syncSucceed()) {
-                            syncFailedEndpoints.add(new FailAnalyze(endpoint, syncResult, epoch, indexOfEpoch));
+                        if (syncResult.failed()) {
+                            syncFailedEndpoints.put(endpoint, new FailAnalyze(endpoint, syncResult, epoch, indexOfEpoch));
                         }
                     } catch (Exception e) {
-                        log.error("sync log failed:{}", endpoint);
+                        log.error("sync log failed:{},{}", endpoint, e.getMessage(), e);
                     }
                 });
     }
@@ -64,8 +69,8 @@ public class LogSyncer {
 
     }
 
-    public static SyncHandler follow(Server server) {
-        SyncHandler handler = new SyncHandler(new Global());
+    public static LogSyncHandler follow(Server server) {
+        LogSyncHandler handler = new LogSyncHandler(server);
         server.register(Constant.LOG_SYNC_PATH, handler);
         return handler;
     }

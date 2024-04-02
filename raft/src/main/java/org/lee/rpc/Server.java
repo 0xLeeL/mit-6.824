@@ -1,6 +1,7 @@
 package org.lee.rpc;
 
 
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class Server implements AutoCloseable {
     private final Logger log = LoggerFactory.getLogger(Server.class);
 
     private GlobalConfig globalConfig;
+    private Context context;
     private ServerSocket serverSocket;
     private final ThreadPoolExecutor poolExecutor;
     private final Dispatcher dispatcher = new Dispatcher();
@@ -107,7 +109,6 @@ public class Server implements AutoCloseable {
 
     private void deal(String path, InputStream inputStream, OutputStream outputStream) throws IOException {
         String reqJson = readToString(inputStream);
-        log.info("server receive:{}", reqJson);
         Object dispatch = dispatcher.dispatch(path, reqJson);
         RpcUtil.sendObj(dispatch, outputStream);
     }
@@ -120,6 +121,14 @@ public class Server implements AutoCloseable {
 
     public GlobalConfig getGlobalConfig() {
         return globalConfig;
+    }
+
+    public void setGlobal(Context context) {
+        this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     @Override

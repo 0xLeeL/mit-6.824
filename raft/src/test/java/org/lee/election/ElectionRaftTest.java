@@ -2,7 +2,7 @@ package org.lee.election;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.Pair;
 import org.lee.election.domain.CurrentActor;
@@ -36,12 +36,12 @@ public class ElectionRaftTest {
 
     Pair<ElectionRaft,Server> getElection(int port){
         Server server1 = Server.start(port);
-        Global global = new Global();
+        Context context = new Context();
         GlobalConfig globalConfig = server1.getGlobalConfig();
-        global.addEndpoint(new Endpoint(81,"localhost"));
-        global.addEndpoint(new Endpoint(82,"localhost"));
-        global.addEndpoint(new Endpoint(83,"localhost"));
-        ElectionRaft electionRaft1 = new ElectionRaft(global,globalConfig);
+        context.addEndpoint(new Endpoint(81,"localhost"));
+        context.addEndpoint(new Endpoint(82,"localhost"));
+        context.addEndpoint(new Endpoint(83,"localhost"));
+        ElectionRaft electionRaft1 = new ElectionRaft(context,globalConfig);
         electionRaft1.register(server1);
         return Pair.of(electionRaft1, server1);
     }

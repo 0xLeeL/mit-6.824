@@ -1,7 +1,7 @@
 package org.lee.election;
 
 import org.lee.common.Constant;
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
 import org.lee.election.domain.ActorStatusEntry;
@@ -22,11 +22,11 @@ import java.util.Random;
 public class ElectionRaft implements Election {
 
     private static final Logger log = LoggerFactory.getLogger(Endpoint.class);
-    private final Global global;
+    private final Context context;
     private final GlobalConfig globalConfig;
 
-    public ElectionRaft(Global global, GlobalConfig globalConfig) {
-        this.global = global;
+    public ElectionRaft(Context context, GlobalConfig globalConfig) {
+        this.context = context;
         this.globalConfig = globalConfig;
     }
 
@@ -45,18 +45,18 @@ public class ElectionRaft implements Election {
 
     private CurrentActor doElect() {
 
-        global.addEpoch();
+        context.addEpoch();
         int acceptedNum = proposes();
         log.info("{}'s accepted proposes num is {} ",
                 globalConfig.getCurrentAddr(),
                 acceptedNum);
         boolean majority = isMajority(acceptedNum);
         if (majority) {
-            global.updateActor(CurrentActor.MASTER);
+            context.updateActor(CurrentActor.MASTER);
             syncStatus();
             return CurrentActor.MASTER;
         }
-        if (MasterStatus.HEALTH.equals(global.getMasterStatus())) {
+        if (MasterStatus.HEALTH.equals(context.getMasterStatus())) {
             return CurrentActor.FOLLOWER;
         }
         return CurrentActor.CANDIDATE;
@@ -64,7 +64,7 @@ public class ElectionRaft implements Election {
 
     private void syncStatus() {
         log.info("{} start to sync log", globalConfig.getCurrentAddr());
-        List<SyncResult> syncResults = global.getEndpoints().parallelStream()
+        List<SyncResult> syncResults = context.getEndpoints().parallelStream()
                 .map(endpoint -> {
                     try {
                         SyncResult syncResult = endpoint.syncStatus(
@@ -87,14 +87,14 @@ public class ElectionRaft implements Election {
     private int proposes() {
         // 为了阻止选票起初就被瓜分，选举超时时间是从一个固定的区间（例如 150-300 毫秒）随机选择。
         ThreadUtil.sleep(new Random().nextInt(150) + 150);
-        return (int) global.getEndpoints()
+        return (int) context.getEndpoints()
                 .parallelStream()
                 .filter(
                         endpoint -> !(endpoint.port() == globalConfig.getCurrentPort()
                                 && globalConfig.getCurrentHost().equals(endpoint.host()))
                 ).map(endpoint -> {
                     try {
-                        ProposeResult propose = endpoint.propose(global.getEpoch(), globalConfig.getCurrentPort());
+                        ProposeResult propose = endpoint.propose(context.getEpoch(), globalConfig.getCurrentPort());
                         log.info("propose result is :{}", propose);
                         return Optional.ofNullable(propose);
                     } catch (Exception e) {
@@ -110,11 +110,11 @@ public class ElectionRaft implements Election {
     }
 
     private boolean isMajority(int num) {
-        return global.isMajority(num);
+        return context.isMajority(num);
     }
 
     public void register(Server server) {
-        server.register(Constant.ELECTION_PATH, new ElectionHandler(global));
-        server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(globalConfig, global));
+        server.register(Constant.ELECTION_PATH, new ElectionHandler(context));
+        server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(server));
     }
 }

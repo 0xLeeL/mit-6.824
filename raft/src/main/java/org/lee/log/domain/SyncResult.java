@@ -13,4 +13,8 @@ public record SyncResult(
     public static SyncResult fail(int epoch, int indexOfEpoch) {
         return new SyncResult(false, epoch, indexOfEpoch);
     }
+
+    public boolean failed(){
+        return !syncSucceed;
+    }
 }

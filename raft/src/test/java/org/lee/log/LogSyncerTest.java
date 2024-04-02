@@ -2,9 +2,10 @@ package org.lee.log;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.election.Endpoint;
+import org.lee.log.handler.LogSyncHandler;
 import org.lee.rpc.Server;
 
 public class LogSyncerTest {
@@ -18,18 +19,18 @@ public class LogSyncerTest {
         Server server1 = Server.start(p1);
         Server server2 = Server.start(p2);
         Server server3 = Server.start(p3);
-        SyncHandler handler1 = LogSyncer.follow(server1);
-        SyncHandler handler2 = LogSyncer.follow(server2);
-        SyncHandler handler3 = LogSyncer.follow(server3);
+        LogSyncHandler handler1 = LogSyncer.follow(server1);
+        LogSyncHandler handler2 = LogSyncer.follow(server2);
+        LogSyncHandler handler3 = LogSyncer.follow(server3);
 
 
 
-        Global global = new Global();
+        Context context = new Context();
         GlobalConfig globalConfig = new GlobalConfig();
-        LogSyncer logSyncer = new LogSyncer(global);
-        global.addEndpoint(new Endpoint(p1, "localhost"));
-        global.addEndpoint(new Endpoint(p2, "localhost"));
-        global.addEndpoint(new Endpoint(p3, "localhost"));
+        LogSyncer logSyncer = new LogSyncer(context);
+        context.addEndpoint(new Endpoint(p1, "localhost"));
+        context.addEndpoint(new Endpoint(p2, "localhost"));
+        context.addEndpoint(new Endpoint(p3, "localhost"));
         int size = 6;
         for (int i = 0; i < 6; i++) {
             logSyncer.sync("writing operation");

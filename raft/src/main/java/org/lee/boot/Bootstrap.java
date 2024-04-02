@@ -1,6 +1,6 @@
 package org.lee.boot;
 
-import org.lee.common.Global;
+import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.election.Election;
 import org.lee.election.ElectionRaft;
@@ -19,12 +19,12 @@ import java.util.Properties;
 
 public class Bootstrap {
     private final Logger log = LoggerFactory.getLogger(Bootstrap.class);
-    private Global global;
+    private Context context;
     private GlobalConfig globalConfig;
 
     public Bootstrap() {
-        if (global == null) {
-            global = new Global();
+        if (context == null) {
+            context = new Context();
         }
         if (globalConfig == null) {
             globalConfig = new GlobalConfig();
@@ -36,8 +36,8 @@ public class Bootstrap {
         return new Bootstrap();
     }
 
-    public Bootstrap global(Global global) {
-        this.global = global;
+    public Bootstrap global(Context context) {
+        this.context = context;
         return this;
     }
 
@@ -74,20 +74,21 @@ public class Bootstrap {
         Server server = new Server(this.globalConfig);
         LogSyncer.follow(server);
 
-        global.setServer(server);
-        globalConfig.getServers().forEach(global::addEndpoint);
-        log.info("servers is:{}", global.getEndpoints());
-        Election electionRaft = new ElectionRaft(global, globalConfig);
+        context.setServer(server);
+        server.setGlobal(context);
+        globalConfig.getServers().forEach(context::addEndpoint);
+        log.info("servers is:{}", context.getEndpoints());
+        Election electionRaft = new ElectionRaft(context, globalConfig);
         electionRaft.register(server);
         CurrentActor elect = electionRaft.elect();
         log.info("current status is:{}", elect.name());
         if (CurrentActor.MASTER.equals(elect)) {// master
             HeartBeatReceiver heartBeatReceiver = new HeartBeatReceiver(server);
             heartBeatReceiver.startListenHeartBeat();
-            LogSyncer logSyncer = new LogSyncer(global);
+            LogSyncer logSyncer = new LogSyncer(context);
             logSyncer.syncing();
         } else {
-            HeartBeatSender heartBeatSender = new HeartBeatSender(global, globalConfig, electionRaft);
+            HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, electionRaft);
             heartBeatSender.schedule();
         }
         return server;
