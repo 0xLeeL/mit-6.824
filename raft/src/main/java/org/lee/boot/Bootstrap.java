@@ -63,6 +63,7 @@ public class Bootstrap {
         return this;
     }
 
+    @Deprecated
     public Server startServer() {
         Server start = Server.start();
         HeartBeatReceiver receiver = new HeartBeatReceiver(start);
@@ -71,11 +72,11 @@ public class Bootstrap {
     }
 
     public Server start() {
-        Server server = new Server(this.globalConfig);
+        Server server = new Server(this.globalConfig,this.context);
         LogSyncer.follow(server);
 
         context.setServer(server);
-        server.setGlobal(context);
+
         globalConfig.getServers().forEach(context::addEndpoint);
         log.info("servers is:{}", context.getEndpoints());
         Election electionRaft = new ElectionRaft(context, globalConfig);

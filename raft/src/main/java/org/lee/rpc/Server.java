@@ -24,10 +24,12 @@ import static org.lee.rpc.common.RpcUtil.readToString;
  */
 public class Server implements AutoCloseable {
 
+    @Deprecated
     public static Server start() {
         return start(new GlobalConfig().getCurrentPort());
     }
 
+    @Deprecated
     public static Server start(int port) {
         return new Server(port);
     }
@@ -62,8 +64,9 @@ public class Server implements AutoCloseable {
         init(config);
     }
 
-    public Server(GlobalConfig globalConfig) {
+    public Server(GlobalConfig globalConfig,Context context) {
         init(globalConfig);
+        this.context = context;
     }
 
     public void init(GlobalConfig globalConfig) {
@@ -121,10 +124,6 @@ public class Server implements AutoCloseable {
 
     public GlobalConfig getGlobalConfig() {
         return globalConfig;
-    }
-
-    public void setGlobal(Context context) {
-        this.context = context;
     }
 
     public Context getContext() {

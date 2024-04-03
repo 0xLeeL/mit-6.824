@@ -10,17 +10,18 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class Client<T,R> implements RpcCaller<T,R>{
+public class Client<T, R> implements RpcCaller<T, R> {
     private static final Logger log = LoggerFactory.getLogger(Client.class);
 
     private final String host;
     private final Integer port;
     private final Socket socket;
     private final RpcConfig config;
-    private Runnable sendFail = ()->{};
+    private Runnable sendFail = () -> {
+    };
 
     public Client(String host, Integer port) {
-        this(host,port, new RpcConfig());
+        this(host, port, new RpcConfig());
     }
 
     public Client(String host, Integer port, RpcConfig config) {
@@ -41,6 +42,7 @@ public class Client<T,R> implements RpcCaller<T,R>{
             log.info("call result is :{}", result);
             return result;
         } catch (IOException e) {
+            log.error(e.getMessage(), e);
             onFailed();
             return null;
         }
@@ -64,8 +66,8 @@ public class Client<T,R> implements RpcCaller<T,R>{
         this.sendFail = sendFail;
     }
 
-    public void close(){
-        if (socket!=null && !socket.isClosed()){
+    public void close() {
+        if (socket != null && !socket.isClosed()) {
             try {
                 socket.close();
             } catch (IOException e) {
