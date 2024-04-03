@@ -18,7 +18,12 @@ public class Dispatcher {
             log.error("path:{} 404",path);
             return "";
         }
-        return objectObjectHandler.handle(requestJson);
+        try {
+            return objectObjectHandler.handle(requestJson);
+        }catch (Throwable t){
+            log.error(t.getMessage(),t);
+            throw t;
+        }
     }
 
     public void register(String path, Handler function) {
