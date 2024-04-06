@@ -16,18 +16,6 @@ import static org.lee.boot.MultiProcessor.start;
 public class MultiProcessorTest {
     private static final Logger log = LoggerFactory.getLogger(MultiProcessorTest.class);
 
-    @Test
-    void test() throws IOException {
-        Process process1 = start(MyApplication.class, "xxx", "sss");
-        Process process2 = start(MyApplication.class, "sss", "xxx");
-        log.info("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        ThreadUtil.sleep(1000);
-    }
-
-    @Test
-    void test_() throws IOException {
-    }
-
     public static void main(String[] args) {
 
         Process process1 = start(Bootstrap.class, "C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\raft\\src\\main\\resources\\server1.properties", "server1");

@@ -36,7 +36,7 @@ public class LogSyncerTest {
             logSyncer.sync("writing operation");
         }
 
-//        server1.getGlobalConfig()
+
         Assertions.assertEquals(size, handler1.getEntries().size());
         Assertions.assertEquals(size, handler2.getEntries().size());
         Assertions.assertEquals(size, handler3.getEntries().size());

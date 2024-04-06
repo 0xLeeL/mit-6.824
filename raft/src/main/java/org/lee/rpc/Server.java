@@ -25,23 +25,13 @@ import static org.lee.rpc.common.RpcUtil.readToString;
  */
 public class Server implements AutoCloseable {
 
-    @Deprecated
-    public static Server start() {
-        return start(new GlobalConfig().getCurrentPort());
-    }
-
-    @Deprecated
-    public static Server start(int port) {
-        return new Server(port);
-    }
-
 
     private final Logger log = LoggerFactory.getLogger(Server.class);
 
     private GlobalConfig globalConfig;
     private Context context;
     private ServerSocket serverSocket;
-    private final ThreadPoolExecutor poolExecutor= ThreadUtil.poolOfIO("rpc-server");
+    private final ThreadPoolExecutor poolExecutor = ThreadUtil.poolOfIO("rpc-server");
     private final Dispatcher dispatcher = new Dispatcher();
 
     public Server(int listenPort) {
@@ -50,7 +40,7 @@ public class Server implements AutoCloseable {
         init(config);
     }
 
-    public Server(GlobalConfig globalConfig,Context context) {
+    public Server(GlobalConfig globalConfig, Context context) {
         init(globalConfig);
         this.context = context;
     }
@@ -119,7 +109,9 @@ public class Server implements AutoCloseable {
     @Override
     public void close() {
         try {
-            serverSocket.close();
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

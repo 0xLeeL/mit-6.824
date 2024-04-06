@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class GlobalConfig {
 
 
+
     @Builder.Default
     private String masterHost = "localhost";
     @Builder.Default
@@ -29,7 +30,8 @@ public class GlobalConfig {
     private int pingSeg = 1_000;
     @Builder.Default
     private int retryTimes = 2; // if retry 'retryTimes' heartbeat are failed, follower start to election
-    private Set<Endpoint> servers;
+    @Builder.Default
+    private Set<Endpoint> servers = Set.of();
 
     public String getMasterHost() {
         return masterHost;

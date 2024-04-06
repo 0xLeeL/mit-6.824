@@ -57,29 +57,25 @@ public class ElectionRaftTest {
         Assertions.assertTrue(er11.contains(CurrentActor.FOLLOWER));
         Assertions.assertTrue(er11.contains(CurrentActor.MASTER));
         Assertions.assertEquals(2, er11.stream().filter(c -> c.equals(CurrentActor.FOLLOWER)).count());
-        if (er1.equals(CurrentActor.FOLLOWER)){
+        if (er1.equals(CurrentActor.FOLLOWER)) {
             e1.getSecond().close();
             launchNew(p1);
-            return;
-        }
-        if (er2.equals(CurrentActor.FOLLOWER)){
+        } else if (er2.equals(CurrentActor.FOLLOWER)) {
             e2.getSecond().close();
             launchNew(p2);
-            return;
-        }
-        if (er3.equals(CurrentActor.FOLLOWER)){
+        } else if (er3.equals(CurrentActor.FOLLOWER)) {
             e3.getSecond().close();
             launchNew(p3);
-            return;
         }
         e1.getSecond().close();
         e2.getSecond().close();
         e3.getSecond().close();
     }
-    void launchNew(int port){
+
+    void launchNew(int port) {
         Pair<ElectionRaft, Server> newE1 = getElection(port);
         CurrentActor elect = newE1.getFirst().elect();
-        Assertions.assertEquals(CurrentActor.FOLLOWER,elect);
+        Assertions.assertEquals(CurrentActor.FOLLOWER, elect);
         newE1.getSecond().close();
     }
 

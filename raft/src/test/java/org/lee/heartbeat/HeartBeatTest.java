@@ -26,7 +26,7 @@ public class HeartBeatTest {
     @Test
     void test_ping() {
         Context context = new Context();
-        Server server = new Bootstrap().startServer();
+        Server server = Bootstrap.builder().global(context).globalConfig(new GlobalConfig()).startServer();
         HeartBeatReceiver receiver = new HeartBeatReceiver(server);
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         AtomicInteger heartbeatTimes = new AtomicInteger(0);

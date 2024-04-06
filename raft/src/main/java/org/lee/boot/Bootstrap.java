@@ -63,9 +63,9 @@ public class Bootstrap {
         return this;
     }
 
-    @Deprecated
+
     public Server startServer() {
-        Server start = Server.start();
+        Server start = init();
         HeartBeatReceiver receiver = new HeartBeatReceiver(start);
         receiver.startListenHeartBeat();
         return start;
