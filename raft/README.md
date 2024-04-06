@@ -13,9 +13,9 @@
 ## 2. 机器角色
 - [x] salve
   - [x] Respond to RPCs from candidates and leader
-  - [ ]If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
+  - [x] If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
 - [x] leader 
-  - [ ] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;
+  - [x] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;
   - [ ] If command received from client: append entry to local log, respond after entry applied to state machine
   - [ ] If last log index ≥ nextIndex for a follower: send AppendEntries RPC with log entries starting at nextIndex
     - [ ] If successful: update nextIndex and matchIndex for follower
@@ -55,8 +55,8 @@
 
 ## 5. 配置更新（更新集群总数量）
 - [ ] 增加/减少集群机器的总数量
-- [ ] 配置文件化
-- [ ] 多进程工具
+- [x] 配置文件化
+- [x] 多进程工具
 
 # shell 启动命令
 启动三个server 

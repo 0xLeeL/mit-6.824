@@ -53,6 +53,7 @@ public class Client<T, R> implements RpcCaller<T, R> {
 //            log.info("connect to {}:{}",host,port);
             socket.connect(new InetSocketAddress(host, port));
         } catch (IOException e) {
+            onFailed();
             throw new RuntimeException(e);
         }
     }

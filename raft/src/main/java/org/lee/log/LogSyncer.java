@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Timer;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -21,7 +23,9 @@ public class LogSyncer {
     private final Logger log = LoggerFactory.getLogger(LogSyncer.class);
     private final Context context;
     private final ThreadPoolExecutor pool = ThreadUtil.poolOfIO("Log-Fail-Recovery");
+    private final ThreadPoolExecutor heartbeat = ThreadUtil.poolOfIO("Log-Syncer");
     private final Map<Endpoint, FailAnalyze> syncFailedEndpoints = new ConcurrentHashMap<>();
+    private Timer timer;
 
     public LogSyncer(Context context) {
         this.context = context;
@@ -29,7 +33,7 @@ public class LogSyncer {
 
 
     public void syncing() {
-        TimerUtils.schedule(() -> {
+        timer = TimerUtils.schedule(() -> {
             String entry = getEntry();
             sync(entry);
         }, 1000, 2000);
@@ -43,9 +47,9 @@ public class LogSyncer {
         int indexOfEpoch = context.incrementIndexOfEpoch();
         int epoch = context.getEpoch();
         context.getEndpoints()
-                .parallelStream()
+                .stream()
                 .filter(endpoint -> !syncFailedEndpoints.containsKey(endpoint))
-                .forEach(endpoint -> {
+                .forEach(endpoint -> CompletableFuture.runAsync(() -> {
                     try {
                         SyncResult syncResult = endpoint.sendLog(new LogEntry(context.getEpoch(), logEntry, indexOfEpoch));
                         log.info("{} syncing result is :{}", endpoint.info(), syncResult);
@@ -55,15 +59,26 @@ public class LogSyncer {
                     } catch (Exception e) {
                         log.error("sync log failed:{},{}", endpoint, e.getMessage(), e);
                     }
-                });
+                }, heartbeat));
     }
 
+    /**
+     * TODO: realize
+     */
     protected void recovery() {
 
     }
 
+    /**
+     * TODO: realize
+     */
     protected void recoveryOne(FailAnalyze failAnalyze) {
 
+    }
+    public void stop(){
+        if (timer!=null) {
+            timer.cancel();
+        }
     }
 
     public static LogSyncHandler follow(Server server) {
@@ -71,4 +86,5 @@ public class LogSyncer {
         server.register(Constant.LOG_SYNC_PATH, handler);
         return handler;
     }
+
 }

@@ -10,6 +10,7 @@ import org.lee.rpc.RpcCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -22,6 +23,8 @@ public class HeartBeatSender {
     private Supplier<RpcCaller<String, String>> clientSupplier;
     private final GlobalConfig globalConfig;
     private final Election election;
+    private Timer timer;
+
 
     public HeartBeatSender(Context context, GlobalConfig globalConfig, Election election) {
         this.context = context;
@@ -57,7 +60,7 @@ public class HeartBeatSender {
     }
 
     public void schedule() {
-        TimerUtils.schedule(this::ping, 100, globalConfig.getPingSeg());
+        timer = TimerUtils.schedule(this::ping, 100, globalConfig.getPingSeg());
     }
 
     void tryElect() {
@@ -72,5 +75,11 @@ public class HeartBeatSender {
 
     public void setClientSupplier(Supplier<RpcCaller<String, String>> clientSupplier) {
         this.clientSupplier = clientSupplier;
+    }
+
+    public void stop(){
+        if (timer!=null) {
+            timer.cancel();
+        }
     }
 }

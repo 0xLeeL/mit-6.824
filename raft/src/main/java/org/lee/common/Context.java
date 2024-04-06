@@ -2,9 +2,13 @@ package org.lee.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
+import org.lee.heartbeat.HeartBeatReceiver;
+import org.lee.heartbeat.HeartBeatSender;
 import org.lee.heartbeat.MasterStatus;
+import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
 
 import java.util.Set;
@@ -16,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Builder
 @AllArgsConstructor
+@Data
 public class Context {
     @Builder.Default
     public MasterStatus masterStatus = MasterStatus.SUSPEND;
@@ -26,6 +31,8 @@ public class Context {
     private final AtomicInteger epoch = new AtomicInteger(0);
     private final AtomicInteger indexOfEpoch = new AtomicInteger(0);
     private Server server;
+    private LogSyncer logSyncer;
+    private HeartBeatSender heartBeatSender;
     @Builder.Default
     private int acceptedEpoch = -1;
 
@@ -50,7 +57,7 @@ public class Context {
         this.masterStatus = masterStatus;
     }
 
-    public boolean masterIsHealth(){
+    public boolean masterIsHealth() {
         return MasterStatus.HEALTH.equals(masterStatus);
     }
 
@@ -78,7 +85,7 @@ public class Context {
         return epoch.incrementAndGet();
     }
 
-    public synchronized void updateActor(CurrentActor currentActor){
+    public synchronized void updateActor(CurrentActor currentActor) {
         this.currentActor = currentActor;
     }
 
@@ -90,14 +97,15 @@ public class Context {
         this.acceptedEpoch = acceptedEpoch;
     }
 
-    public boolean isMajority(int num){
+    public boolean isMajority(int num) {
         return num > getEndpoints().size() / 2;
     }
 
     public int getIndexOfEpoch() {
         return indexOfEpoch.get();
     }
-    public int incrementIndexOfEpoch(){
+
+    public int incrementIndexOfEpoch() {
         return indexOfEpoch.incrementAndGet();
     }
 
@@ -111,5 +119,38 @@ public class Context {
 
     public void setServer(Server server) {
         this.server = server;
+    }
+
+
+    public void becomeMaster() {
+        this.updateActor(CurrentActor.MASTER);
+        new HeartBeatReceiver(server).startListenHeartBeat();
+
+        if (getHeartBeatSender() != null) {
+            getHeartBeatSender().stop();
+        }
+        if (getLogSyncer() != null) {
+            getLogSyncer().syncing();
+        }
+
+        setMasterStatus(MasterStatus.HEALTH);
+        server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
+        server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
+    }
+
+    /**
+     * 1. start append entry listener
+     * 2. stop heartbeat schedule
+     */
+    public void becomeFollower() {
+        this.updateActor(CurrentActor.FOLLOWER);
+        LogSyncer.follow(getServer());
+
+        if (getHeartBeatSender() != null) {
+            getHeartBeatSender().schedule();
+        }
+        if (getLogSyncer() != null) {
+            getLogSyncer().stop();
+        }
     }
 }

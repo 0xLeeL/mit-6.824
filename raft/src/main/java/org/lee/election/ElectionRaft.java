@@ -38,9 +38,18 @@ public class ElectionRaft implements Election {
     public CurrentActor elect() {
         while (true) {
             CurrentActor currentActor = doElect();
-            if (CurrentActor.CANDIDATE != currentActor) {
-                return currentActor;
+
+            if (CurrentActor.CANDIDATE == currentActor) {
+                continue; // 继续选举
             }
+
+            if (CurrentActor.MASTER.equals(currentActor)){
+                context.becomeMaster();
+            }
+            if (CurrentActor.FOLLOWER.equals(currentActor)){
+                context.becomeFollower();
+            }
+            return currentActor;
         }
     }
 
