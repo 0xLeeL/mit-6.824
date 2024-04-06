@@ -9,3 +9,4 @@ build
 /log/
 
 **/log.dir_IS_UNDEFINED/**
+/raft/log.dir_IS_UNDEFINED/
