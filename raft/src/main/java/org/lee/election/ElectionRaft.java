@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+
 public class ElectionRaft implements Election {
 
     private static final Logger log = LoggerFactory.getLogger(Endpoint.class);
@@ -43,22 +44,45 @@ public class ElectionRaft implements Election {
         }
     }
 
+    /**
+     * 选举发起
+     * 1. 如果以及存在master那么直接转化为follower
+     * 2. 否则继续选举知道选举出新的master为止
+     *
+     * @return 选举结果
+     */
     private CurrentActor doElect() {
-
-        context.addEpoch();
-        int acceptedNum = proposes();
-        log.info("{}'s accepted proposes num is {} ",
-                globalConfig.getCurrentAddr(),
-                acceptedNum);
-        boolean majority = isMajority(acceptedNum);
-        if (majority) {
-            context.updateActor(CurrentActor.MASTER);
-            syncStatus();
-            return CurrentActor.MASTER;
-        }
+        ThreadUtil.sleep(new Random().nextInt(150) + 150);
         if (MasterStatus.HEALTH.equals(context.getMasterStatus())) {
             return CurrentActor.FOLLOWER;
         }
+
+        context.addEpoch();
+        int acceptedNum = 0;
+
+        for (Endpoint endpoint : context.getEndpoints()) {
+            if (endpoint.port() == globalConfig.getCurrentPort()
+                    && globalConfig.getCurrentHost().equals(endpoint.host())) {
+                acceptedNum++;
+            }
+            Optional<ProposeResult> proposeOpt = propose(endpoint);
+            if (proposeOpt.isEmpty()) {
+                continue;
+            }
+            ProposeResult propose = proposeOpt.get();
+            if (propose.accept()) {
+                acceptedNum++;
+                continue;
+            }
+            if (propose.msg().existMaster()) {
+                return CurrentActor.FOLLOWER;
+            }
+        }
+        if (isMajority(acceptedNum)) {
+            syncStatus();
+            return CurrentActor.MASTER;
+        }
+
         return CurrentActor.CANDIDATE;
     }
 
@@ -75,8 +99,8 @@ public class ElectionRaft implements Election {
                                 )
                         );
                         return Optional.ofNullable(syncResult);
-                    }catch (Exception e){
-                        log.error("sync status failed:{}",endpoint);
+                    } catch (Exception e) {
+                        log.error("sync status failed:{}", endpoint);
                         return Optional.<SyncResult>empty();
                     }
                 }).filter(Optional::isPresent)
@@ -84,29 +108,15 @@ public class ElectionRaft implements Election {
                 .toList();
     }
 
-    private int proposes() {
-        // 为了阻止选票起初就被瓜分，选举超时时间是从一个固定的区间（例如 150-300 毫秒）随机选择。
-        ThreadUtil.sleep(new Random().nextInt(150) + 150);
-        return (int) context.getEndpoints()
-                .parallelStream()
-                .filter(
-                        endpoint -> !(endpoint.port() == globalConfig.getCurrentPort()
-                                && globalConfig.getCurrentHost().equals(endpoint.host()))
-                ).map(endpoint -> {
-                    try {
-                        ProposeResult propose = endpoint.propose(context.getEpoch(), globalConfig.getCurrentPort());
-                        log.info("propose result is :{}", propose);
-                        return Optional.ofNullable(propose);
-                    } catch (Exception e) {
-                        log.error("propose failed:{}", endpoint);
-                    }
-                    return Optional.<ProposeResult>empty();
-                })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(ProposeResult::accept)
-                .count()
-                + 1; // 投票给自己
+    private Optional<ProposeResult> propose(Endpoint endpoint) {
+        try {
+            ProposeResult propose = endpoint.propose(context.getEpoch(), globalConfig.getCurrentPort());
+            log.info("propose result is :{}", propose);
+            return Optional.ofNullable(propose);
+        } catch (Exception e) {
+            log.error("propose failed:{}", endpoint);
+        }
+        return Optional.empty();
     }
 
     private boolean isMajority(int num) {

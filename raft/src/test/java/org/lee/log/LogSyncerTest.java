@@ -7,6 +7,7 @@ import org.lee.common.GlobalConfig;
 import org.lee.election.Endpoint;
 import org.lee.log.handler.LogSyncHandler;
 import org.lee.rpc.Server;
+import org.lee.util.StartServer;
 
 public class LogSyncerTest {
 
@@ -16,9 +17,9 @@ public class LogSyncerTest {
         int p2 = 82;
         int p3 = 83;
 
-        Server server1 = Server.start(p1);
-        Server server2 = Server.start(p2);
-        Server server3 = Server.start(p3);
+        Server server1 = StartServer.start(p1);
+        Server server2 = StartServer.start(p2);
+        Server server3 = StartServer.start(p3);
         LogSyncHandler handler1 = LogSyncer.follow(server1);
         LogSyncHandler handler2 = LogSyncer.follow(server2);
         LogSyncHandler handler3 = LogSyncer.follow(server3);
@@ -26,7 +27,6 @@ public class LogSyncerTest {
 
 
         Context context = new Context();
-        GlobalConfig globalConfig = new GlobalConfig();
         LogSyncer logSyncer = new LogSyncer(context);
         context.addEndpoint(new Endpoint(p1, "localhost"));
         context.addEndpoint(new Endpoint(p2, "localhost"));

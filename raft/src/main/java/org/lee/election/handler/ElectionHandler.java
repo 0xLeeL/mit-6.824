@@ -24,7 +24,10 @@ public class ElectionHandler implements Handler {
             context.setAcceptedEpoch(propose.epoch());
             return ProposeResult.acceptPropose();
         }
-        return ProposeResult.refusePropose();
+        if (context.masterIsHealth()){
+            return ProposeResult.refuseProposeWithMaster(context.getServer().getGlobalConfig().getMasterHost(),context.getServer().getGlobalConfig().getMasterPort());
+        }
+        return ProposeResult.refuseProposeWithoutMaster();
     }
 
     public boolean accept(Propose propose){

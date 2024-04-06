@@ -72,13 +72,7 @@ public class Bootstrap {
     }
 
     public Server start() {
-        Server server = new Server(this.globalConfig,this.context);
-        LogSyncer.follow(server);
-
-        context.setServer(server);
-
-        globalConfig.getServers().forEach(context::addEndpoint);
-        log.info("servers is:{}", context.getEndpoints());
+        Server server = init();
         Election electionRaft = new ElectionRaft(context, globalConfig);
         electionRaft.register(server);
         CurrentActor elect = electionRaft.elect();
@@ -92,6 +86,17 @@ public class Bootstrap {
             HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, electionRaft);
             heartBeatSender.schedule();
         }
+        return server;
+    }
+
+    public Server init(){
+        Server server = new Server(this.globalConfig,this.context);
+        LogSyncer.follow(server);
+
+        context.setServer(server);
+
+        globalConfig.getServers().forEach(context::addEndpoint);
+        log.info("servers is:{}", context.getEndpoints());
         return server;
     }
 

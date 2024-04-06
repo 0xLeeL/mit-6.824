@@ -50,6 +50,7 @@
 - [x] If votes received from the majority of servers: become leader/master
 - [ ] If AppendEntries RPC received from new leader: convert to follower
 - [ ] 在途中加入cluster
+  - [ ] 同样也是直接发起选举，不过此时会收到其他server的提示告诉当前存在master，直接成为master 的follower就行了
 - [ ] If electionRaft timeout elapses: start new electionRaft
 
 ## 5. 配置更新（更新集群总数量）
@@ -74,3 +75,10 @@ pingSeg=1000
 retryTimes=2
 servers=localhost:81;localhost:82;localhost:83
 ```
+
+
+# 代码架构
+
+## rpc 
+所有网络调用的基础层面，所有模块都依赖于他
+## 

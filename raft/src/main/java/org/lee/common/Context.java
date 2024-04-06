@@ -38,10 +38,6 @@ public class Context {
     }
 
     public void addEndpoint(Endpoint endpoint) {
-        if (endpoint.port() == server.getGlobalConfig().getCurrentPort()
-        && endpoint.host().equals(server.getGlobalConfig().getMasterHost())){
-            return;
-        }
         endpoints.add(endpoint);
     }
 

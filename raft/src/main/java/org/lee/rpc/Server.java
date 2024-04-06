@@ -3,6 +3,7 @@ package org.lee.rpc;
 
 import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
+import org.lee.common.utils.ThreadUtil;
 import org.lee.rpc.common.RpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,23 +41,8 @@ public class Server implements AutoCloseable {
     private GlobalConfig globalConfig;
     private Context context;
     private ServerSocket serverSocket;
-    private final ThreadPoolExecutor poolExecutor;
+    private final ThreadPoolExecutor poolExecutor= ThreadUtil.poolOfIO("rpc-server");
     private final Dispatcher dispatcher = new Dispatcher();
-
-    {
-        int processors = Runtime.getRuntime().availableProcessors();
-        int maxConnectSize = processors << 10;
-        poolExecutor = new ThreadPoolExecutor(
-                processors << 1,
-
-                processors << 2,
-                100,
-                TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(maxConnectSize),
-                new ThreadPoolExecutor.CallerRunsPolicy()
-        );
-    }
-
 
     public Server(int listenPort) {
         GlobalConfig config = new GlobalConfig();

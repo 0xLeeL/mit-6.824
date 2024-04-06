@@ -1,13 +1,17 @@
 package org.lee.election.domain;
 
 public record ProposeResult(
-        String msg,
+        ProposeResultContent msg,
         boolean accept
 ) {
     public static ProposeResult acceptPropose() {
-        return new ProposeResult("success",true);
+        return new ProposeResult(null, true);
     }
-    public static ProposeResult refusePropose() {
-        return new ProposeResult("success",false);
+
+    public static ProposeResult refuseProposeWithoutMaster() {
+        return new ProposeResult(new ProposeResultContent(false, null, null), false);
+    }
+    public static ProposeResult refuseProposeWithMaster(String host,Integer port) {
+        return new ProposeResult(new ProposeResultContent(true, host, port), false);
     }
 }
