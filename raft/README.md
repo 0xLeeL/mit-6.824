@@ -1,7 +1,8 @@
 # raft 需求
 **raft status flow**
 ![](./img/raft_status_flow.png)
-
+## 0
+- [ ] 自自定义线程池用于监控所有的线程情况已经日志输出
 ## 1. 基础RPC
 - [x] 发送信息，并且回复成功  
 - [x] 超时异常报错  

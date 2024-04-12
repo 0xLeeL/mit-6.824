@@ -121,7 +121,7 @@ public class Context {
         this.server = server;
     }
 
-
+    
     public void becomeMaster() {
         this.updateActor(CurrentActor.MASTER);
         new HeartBeatReceiver(server).startListenHeartBeat();

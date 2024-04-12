@@ -84,6 +84,7 @@ public class Bootstrap {
             logSyncer.syncing();
         } else {
             HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, electionRaft);
+            context.setHeartBeatSender(heartBeatSender);
             heartBeatSender.schedule();
         }
         return server;

@@ -32,6 +32,8 @@ public class HeartBeatSender {
         this.clientSupplier = () -> new Client<>(globalConfig.getMasterHost(), globalConfig.getMasterPort()) {
             @Override
             public void onFailed() {
+                log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
+
                 tryElect();
             }
         };
@@ -41,6 +43,7 @@ public class HeartBeatSender {
 
     public void ping() {
         try {
+            log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
             RpcCaller<String, String> client = clientSupplier.get();
             client.connect();
             String call = client.call(Constant.HEART_BEAT_PATH, Constant.HEART_REQ, String.class);
@@ -65,6 +68,7 @@ public class HeartBeatSender {
 
     void tryElect() {
         int fail = failTimes.incrementAndGet();
+        log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
         log.info("failed {} times", fail);
         if (fail >= globalConfig.getRetryTimes() && context.masterIsHealth()) {
             context.setMasterStatus(MasterStatus.SUSPEND);
