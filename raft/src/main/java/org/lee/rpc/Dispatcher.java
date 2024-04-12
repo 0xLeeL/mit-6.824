@@ -23,7 +23,7 @@ public class Dispatcher {
             return objectObjectHandler.handle(requestJson);
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            throw t;
+            return "";
         }
     }
 

@@ -25,16 +25,17 @@ public class SyncStatusHandler implements Handler {
     @Override
     public Object handle(String requestJson) {
         ActorStatusEntry request = JsonUtil.fromJson(requestJson, ActorStatusEntry.class);
+        log.info("received:{}", requestJson);
+        globalConfig.setMasterHost(request.host());
+        globalConfig.setMasterPort(request.port());
         boolean sameServer = request.sameServer(globalConfig.getCurrentHost(), globalConfig.getCurrentPort());
-        if (!sameServer) {
-            context.setMasterStatus(MasterStatus.HEALTH);
-            context.updateActor(CurrentActor.FOLLOWER);
-            globalConfig.setMasterHost(request.host());
-            globalConfig.setMasterPort(request.port());
-            log.info("election finished, become a actor:{}, master status is :{}", context.getCurrentActor(), context.getMasterStatus());
-        } else {
-            log.info("election finished, become a actor:{}, master status is :{}", context.getCurrentActor(), context.getMasterStatus());
+        if (sameServer){
+            context.becomeMaster();
+        }else{
+            context.becomeFollower(request.host(), request.port());
         }
+        log.info("election finished, become a actor:{}, master status is :{}", context.getCurrentActor(), context.getMasterStatus());
+
         return SyncResult.success();
     }
 }

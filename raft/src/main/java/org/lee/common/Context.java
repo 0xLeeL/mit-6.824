@@ -3,6 +3,8 @@ package org.lee.common;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.lee.common.utils.TimerUtils;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
 import org.lee.heartbeat.HeartBeatReceiver;
@@ -11,7 +13,9 @@ import org.lee.heartbeat.MasterStatus;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
 
+import java.sql.Time;
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Builder
 @AllArgsConstructor
 @Data
+@Slf4j
 public class Context {
     @Builder.Default
     public MasterStatus masterStatus = MasterStatus.SUSPEND;
@@ -35,6 +40,8 @@ public class Context {
     private HeartBeatSender heartBeatSender;
     @Builder.Default
     private int acceptedEpoch = -1;
+
+    private Timer timer;
 
 
     public Context() {
@@ -87,6 +94,11 @@ public class Context {
 
     public synchronized void updateActor(CurrentActor currentActor) {
         this.currentActor = currentActor;
+        log.info("=====================================================================");
+        log.info("=====================================================================");
+        log.info("|| become a {} ",currentActor);
+        log.info("=====================================================================");
+        log.info("=====================================================================");
     }
 
     public synchronized int getAcceptedEpoch() {
@@ -127,12 +139,18 @@ public class Context {
         new HeartBeatReceiver(server).startListenHeartBeat();
 
         if (getHeartBeatSender() != null) {
+            log.info("stop timer");
             getHeartBeatSender().stop();
+            timer = TimerUtils.masterAlive();
+            log.info("stoped timer");
         }
         if (getLogSyncer() != null) {
+            log.info("stoped getLogSyncer");
             getLogSyncer().syncing();
+            log.info("stoped getLogSyncer");
         }
 
+        log.info("stoped getLogSyncer");
         setMasterStatus(MasterStatus.HEALTH);
         server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
         server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
@@ -143,6 +161,7 @@ public class Context {
      * 2. stop heartbeat schedule
      */
     public void becomeFollower() {
+        setMasterStatus(MasterStatus.HEALTH);
         this.updateActor(CurrentActor.FOLLOWER);
         LogSyncer.follow(getServer());
 
@@ -152,5 +171,13 @@ public class Context {
         if (getLogSyncer() != null) {
             getLogSyncer().stop();
         }
+        if (timer != null){
+            timer.cancel();
+        }
+    }
+    public void becomeFollower(String masterHost,int masterPort) {
+        becomeFollower();
+        getServer().getGlobalConfig().setMasterPort(masterPort);
+        getServer().getGlobalConfig().setMasterHost(masterHost);
     }
 }

@@ -49,7 +49,7 @@ public class HeartBeatSender {
             String call = client.call(Constant.HEART_BEAT_PATH, Constant.HEART_REQ, String.class);
             health(call);
             client.close();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.info("ping failed");
         }
     }
