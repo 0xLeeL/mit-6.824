@@ -77,11 +77,10 @@ public class Bootstrap {
         electionRaft.register(server);
         CurrentActor elect = electionRaft.elect();
         log.info("current status is:{}", elect.name());
+        LogSyncer logSyncer = new LogSyncer(context);
+        context.setLogSyncer(logSyncer);
         if (CurrentActor.MASTER.equals(elect)) {// master
-            HeartBeatReceiver heartBeatReceiver = new HeartBeatReceiver(server);
-            heartBeatReceiver.startListenHeartBeat();
-            LogSyncer logSyncer = new LogSyncer(context);
-            logSyncer.syncing();
+            context.becomeMaster();
         } else {
             HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, electionRaft);
             context.setHeartBeatSender(heartBeatSender);

@@ -3,7 +3,6 @@ package org.lee.log;
 import org.lee.common.Constant;
 import org.lee.common.Context;
 import org.lee.common.utils.ThreadUtil;
-import org.lee.common.utils.TimerUtils;
 import org.lee.election.Endpoint;
 import org.lee.log.domain.FailAnalyze;
 import org.lee.log.domain.LogEntry;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -25,24 +23,20 @@ public class LogSyncer {
     private final ThreadPoolExecutor pool = ThreadUtil.poolOfIO("Log-Fail-Recovery");
     private final ThreadPoolExecutor heartbeat = ThreadUtil.poolOfIO("Log-Syncer");
     private final Map<Endpoint, FailAnalyze> syncFailedEndpoints = new ConcurrentHashMap<>();
-    private Timer timer;
 
     public LogSyncer(Context context) {
         this.context = context;
-    }
-
-
-    public void syncing() {
-        timer = TimerUtils.schedule(() -> {
-            String entry = getEntry();
-            sync(entry);
-        }, 1000, 2000);
     }
 
     private String getEntry() {
         return "test entry";
     }
 
+    /**
+     * 二阶段提交实现，
+     * 多数存储成功之后才为成功
+     * @param logEntry
+     */
     public void sync(String logEntry) {
         int indexOfEpoch = context.incrementIndexOfEpoch();
         int epoch = context.getEpoch();
@@ -74,11 +68,6 @@ public class LogSyncer {
      */
     protected void recoveryOne(FailAnalyze failAnalyze) {
 
-    }
-    public void stop(){
-        if (timer!=null) {
-            timer.cancel();
-        }
     }
 
     public static LogSyncHandler follow(Server server) {

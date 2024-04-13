@@ -12,6 +12,7 @@ import org.lee.heartbeat.HeartBeatSender;
 import org.lee.heartbeat.MasterStatus;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
+import org.lee.store.handler.DbPutDataHandler;
 
 import java.sql.Time;
 import java.util.Set;
@@ -38,6 +39,7 @@ public class Context {
     private Server server;
     private LogSyncer logSyncer;
     private HeartBeatSender heartBeatSender;
+    private HeartBeatReceiver heartBeatReceiver;
     @Builder.Default
     private int acceptedEpoch = -1;
 
@@ -136,24 +138,25 @@ public class Context {
     
     public void becomeMaster() {
         this.updateActor(CurrentActor.MASTER);
-        new HeartBeatReceiver(server).startListenHeartBeat();
+        if (timer==null){
+            timer = TimerUtils.masterAlive();
+        }
+        if (heartBeatReceiver==null) {
+            this.heartBeatReceiver = new HeartBeatReceiver(server);
+            heartBeatReceiver.startListenHeartBeat();
+        }
 
         if (getHeartBeatSender() != null) {
             log.info("stop timer");
             getHeartBeatSender().stop();
-            timer = TimerUtils.masterAlive();
             log.info("stoped timer");
-        }
-        if (getLogSyncer() != null) {
-            log.info("stoped getLogSyncer");
-            getLogSyncer().syncing();
-            log.info("stoped getLogSyncer");
         }
 
         log.info("stoped getLogSyncer");
         setMasterStatus(MasterStatus.HEALTH);
         server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
         server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
+        server.register(Constant.PUT_DATA_PATH,new DbPutDataHandler(this));
     }
 
     /**
@@ -167,9 +170,6 @@ public class Context {
 
         if (getHeartBeatSender() != null) {
             getHeartBeatSender().schedule();
-        }
-        if (getLogSyncer() != null) {
-            getLogSyncer().stop();
         }
         if (timer != null){
             timer.cancel();

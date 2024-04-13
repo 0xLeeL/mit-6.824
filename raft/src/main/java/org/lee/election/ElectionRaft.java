@@ -7,6 +7,7 @@ import org.lee.common.utils.ThreadUtil;
 import org.lee.election.domain.ActorStatusEntry;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.domain.ProposeResult;
+import org.lee.election.domain.ProposeResultContent;
 import org.lee.election.handler.ElectionHandler;
 import org.lee.election.handler.SyncStatusHandler;
 import org.lee.heartbeat.MasterStatus;
@@ -79,11 +80,14 @@ public class ElectionRaft implements Election {
                 continue;
             }
             ProposeResult propose = proposeOpt.get();
+            log.info("From:{} propose result is :{}",endpoint,propose);
             if (propose.accept()) {
                 acceptedNum++;
                 continue;
             }
             if (propose.msg().existMaster()) {
+                ProposeResultContent msg = propose.msg();
+                context.becomeFollower(msg.host(),msg.port());
                 return CurrentActor.FOLLOWER;
             }
         }

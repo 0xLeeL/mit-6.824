@@ -14,6 +14,7 @@
 ## 2. 机器角色
 - [x] salve
   - [x] Respond to RPCs from candidates and leader
+  - [ ] 重定向，如果收到写请求那么则将请求重定位到master
   - [x] If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
 - [x] leader 
   - [x] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;

@@ -1,6 +1,7 @@
 package org.lee.election.handler;
 
 import org.lee.common.Context;
+import org.lee.common.GlobalConfig;
 import org.lee.common.utils.JsonUtil;
 import org.lee.election.domain.Propose;
 import org.lee.election.domain.ProposeResult;
@@ -11,9 +12,11 @@ import org.slf4j.LoggerFactory;
 public class ElectionHandler implements Handler {
     private final Logger log = LoggerFactory.getLogger(ElectionHandler.class);
     private final Context context;
+    private final GlobalConfig config;
 
     public ElectionHandler(Context context) {
         this.context = context;
+        this.config =  context.getServer().getGlobalConfig();
     }
 
     @Override
@@ -25,7 +28,7 @@ public class ElectionHandler implements Handler {
             return ProposeResult.acceptPropose();
         }
         if (context.masterIsHealth()){
-            return ProposeResult.refuseProposeWithMaster(context.getServer().getGlobalConfig().getMasterHost(),context.getServer().getGlobalConfig().getMasterPort());
+            return ProposeResult.refuseProposeWithMaster(config.getMasterHost(), config.getMasterPort());
         }
         return ProposeResult.refuseProposeWithoutMaster();
     }

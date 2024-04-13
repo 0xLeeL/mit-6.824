@@ -15,6 +15,7 @@ public class Dispatcher {
 
     public Object dispatch(String path, String requestJson) {
         Handler objectObjectHandler = handlerMap.get(path);
+        log.info("path:[{}] data:[{}]",path,requestJson);
         if (Objects.isNull(objectObjectHandler)) {
             log.error("path:{} 404", path);
             return "";

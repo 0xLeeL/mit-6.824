@@ -17,6 +17,6 @@ public class Kv {
         Bootstrap bootstrap = Bootstrap.builder().global(context);
         Server start = bootstrap.start();
         start.register(Constant.GET_DATA_PATH, new DbGetDataHandler());
-        start.register(Constant.PUT_DATA_PATH, new DbPutDataHandler());
+        start.register(Constant.PUT_DATA_PATH, new DbPutDataHandler(context));
     }
 }
