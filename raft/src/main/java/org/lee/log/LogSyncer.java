@@ -35,9 +35,10 @@ public class LogSyncer {
     /**
      * 二阶段提交实现，
      * 多数存储成功之后才为成功
+     *
      * @param logEntry
      */
-    public void sync(String logEntry) {
+    public void sync(Object logEntry) {
         int indexOfEpoch = context.incrementIndexOfEpoch();
         int epoch = context.getEpoch();
         context.getEndpoints()
@@ -45,7 +46,7 @@ public class LogSyncer {
                 .filter(endpoint -> !syncFailedEndpoints.containsKey(endpoint))
                 .forEach(endpoint -> CompletableFuture.runAsync(() -> {
                     try {
-                        SyncResult syncResult = endpoint.sendLog(new LogEntry(context.getEpoch(), logEntry, indexOfEpoch));
+                        SyncResult syncResult = endpoint.sendLog(LogEntry.ofPutData(context.getEpoch(), indexOfEpoch, logEntry));
                         log.info("{} syncing result is :{}", endpoint.info(), syncResult);
                         if (syncResult.failed()) {
                             syncFailedEndpoints.put(endpoint, new FailAnalyze(endpoint, syncResult, epoch, indexOfEpoch));

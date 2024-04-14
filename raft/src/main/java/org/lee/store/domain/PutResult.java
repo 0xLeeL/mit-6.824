@@ -1,5 +1,6 @@
 package org.lee.store.domain;
 
+import org.lee.common.utils.JsonUtil;
 import org.lee.election.Endpoint;
 
 import static org.lee.common.Constant.REDIRECT;
@@ -28,10 +29,11 @@ public record PutResult(
     }
 
 
+
     public Endpoint redirect() {
         if (data instanceof Endpoint e) {
             return e;
         }
-        return null;
+        return JsonUtil.fromJson(JsonUtil.toJson(data),Endpoint.class);
     }
 }

@@ -158,6 +158,7 @@ public class Context {
         server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
         server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
         server.register(Constant.PUT_DATA_PATH,new DbPutDataHandler(this));
+        server.register(Constant.GET_DATA_PATH,new DbGetDataHandler());
     }
 
     /**

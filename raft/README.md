@@ -16,6 +16,7 @@
   - [x] Respond to RPCs from candidates and leader
   - [x] 重定向，如果收到写请求那么则将请求重定位到master
   - [x] If electionRaft timeout elapses without receiving AppendEntries  RPC from current leader or granting vote to candidate: convert to candidate
+  - [x] 收到 put data的log entry ，更新db的数据
 - [x] leader 
   - [x] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;
   - [ ] If command received from client: append entry to local log, respond after entry applied to state machine
@@ -23,8 +24,8 @@
     - [ ] If successful: update nextIndex and matchIndex for follower
     - [ ] If AppendEntries fails because of log inconsistency: decrement nextIndex and retry
   - [ ] If there exists an N such that N > commitIndex, a majority of matchIndex[i] ≥ N, and log[N].term == currentTerm: set commitIndex = N
-- [ ] client
-  - 处理各种不同情况的redirect
+- [x] client
+  - [x] 处理各种不同情况的redirect
 ## 2. append log
 - [x] master send data
 - [x] slave receive data
