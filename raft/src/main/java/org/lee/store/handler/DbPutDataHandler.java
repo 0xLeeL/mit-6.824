@@ -2,9 +2,11 @@ package org.lee.store.handler;
 
 import org.lee.common.Context;
 import org.lee.common.utils.JsonUtil;
+import org.lee.election.domain.CurrentActor;
 import org.lee.rpc.Handler;
 import org.lee.store.core.DBServiceUseCase;
 import org.lee.store.domain.PutRequest;
+import org.lee.store.domain.PutResult;
 import org.lee.store.service.DBServiceInConcurrentHashMap;
 
 public class DbPutDataHandler implements Handler {
@@ -17,8 +19,12 @@ public class DbPutDataHandler implements Handler {
 
     @Override
     public Object handle(String requestJson) {
-        PutRequest getRequest = JsonUtil.fromJson(requestJson, PutRequest.class);
+        if (CurrentActor.FOLLOWER.equals(context.getCurrentActor())){
+            return PutResult.redirect(context.getMaster());
+        }
+        PutRequest putRequest = JsonUtil.fromJson(requestJson, PutRequest.class);
         context.getLogSyncer().sync(requestJson);
-        return dbService.set(getRequest.key(), getRequest.value());
+        boolean set = dbService.set(putRequest.key(), putRequest.value());
+        return PutResult.success(set);
     }
 }

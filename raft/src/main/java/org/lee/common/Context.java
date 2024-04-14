@@ -12,6 +12,7 @@ import org.lee.heartbeat.HeartBeatSender;
 import org.lee.heartbeat.MasterStatus;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
+import org.lee.store.handler.DbGetDataHandler;
 import org.lee.store.handler.DbPutDataHandler;
 
 import java.sql.Time;
@@ -152,7 +153,7 @@ public class Context {
             log.info("stoped timer");
         }
 
-        log.info("stoped getLogSyncer");
+        log.info("stopped getLogSyncer");
         setMasterStatus(MasterStatus.HEALTH);
         server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
         server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
@@ -174,10 +175,16 @@ public class Context {
         if (timer != null){
             timer.cancel();
         }
+        server.register(Constant.PUT_DATA_PATH,new DbPutDataHandler(this));
+        server.register(Constant.GET_DATA_PATH,new DbGetDataHandler());
     }
     public void becomeFollower(String masterHost,int masterPort) {
         becomeFollower();
         getServer().getGlobalConfig().setMasterPort(masterPort);
         getServer().getGlobalConfig().setMasterHost(masterHost);
+    }
+
+    public Endpoint getMaster(){
+        return new Endpoint(server.getGlobalConfig().getMasterPort(),server.getGlobalConfig().getMasterHost());
     }
 }

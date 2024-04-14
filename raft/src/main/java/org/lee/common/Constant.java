@@ -10,4 +10,6 @@ public class Constant {
     public static final String MASTER_STATUS_SYNC = "MASTER_STATUS_SYNC";
     public static final String HEART_REQ = "ping";
     public static final String HEART_RESP = "pong";
+    public static final String REDIRECT = "REDIRECT";
+    public static final String SUCCESS = "SUCCESS";
 }
