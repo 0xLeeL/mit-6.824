@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 
 public class Bootstrap {
@@ -66,12 +67,13 @@ public class Bootstrap {
 
     public Server startServer() {
         Server start = init();
+        start.start();
         HeartBeatReceiver receiver = new HeartBeatReceiver(start);
         receiver.startListenHeartBeat();
         return start;
     }
 
-    public Server start() {
+    public CompletableFuture<Void> start() {
         Server server = init();
         Election electionRaft = new ElectionRaft(context, globalConfig);
         electionRaft.register(server);
@@ -86,7 +88,7 @@ public class Bootstrap {
             context.setHeartBeatSender(heartBeatSender);
             heartBeatSender.schedule();
         }
-        return server;
+        return server.start();
     }
 
     public Server init(){
@@ -104,6 +106,7 @@ public class Bootstrap {
         Bootstrap bootstrap = new Bootstrap();
         String configFile = System.getProperty("config.file");
         bootstrap.configFile(configFile);
-        bootstrap.start();
+        CompletableFuture<Void> start = bootstrap.start();
+        start.join();
     }
 }

@@ -8,6 +8,8 @@ import org.lee.rpc.Server;
 import org.lee.store.handler.DbGetDataHandler;
 import org.lee.store.handler.DbPutDataHandler;
 
+import java.util.concurrent.CompletableFuture;
+
 public class Kv {
     public static void main(String[] args) {
         Context context = Context.builder().build();
@@ -15,8 +17,11 @@ public class Kv {
         context.addEndpoint(new Endpoint(82,"localhost"));
         context.addEndpoint(new Endpoint(83,"localhost"));
         Bootstrap bootstrap = Bootstrap.builder().global(context);
-        Server start = bootstrap.start();
+        CompletableFuture<Void> sss = bootstrap.start();
+
+        Server start = context.getServer();
         start.register(Constant.GET_DATA_PATH, new DbGetDataHandler());
         start.register(Constant.PUT_DATA_PATH, new DbPutDataHandler(context));
+//        start.start().join();
     }
 }

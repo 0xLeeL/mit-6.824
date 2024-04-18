@@ -140,7 +140,7 @@ public class Context {
     public void becomeMaster() {
         this.updateActor(CurrentActor.MASTER);
         if (timer==null){
-            timer = TimerUtils.masterAlive();
+//            timer = TimerUtils.masterAlive();
         }
         if (heartBeatReceiver==null) {
             this.heartBeatReceiver = new HeartBeatReceiver(server);

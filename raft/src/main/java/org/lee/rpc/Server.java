@@ -51,10 +51,14 @@ public class Server implements AutoCloseable {
             int listenPort = globalConfig.getCurrentPort();
             this.serverSocket = new ServerSocket(listenPort);
             globalConfig.setCurrentPort(listenPort);
-            listen();
+//            listen();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public CompletableFuture<Void> start(){
+        return listen();
     }
 
     public CompletableFuture<Void> listen() {
