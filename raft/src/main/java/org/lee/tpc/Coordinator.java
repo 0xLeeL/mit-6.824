@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lee.common.Context;
 import org.lee.common.utils.ColUtils;
 import org.lee.common.utils.ThreadUtil;
-import org.lee.election.Endpoint;
 import org.lee.log.domain.LogEntry;
-import org.lee.log.domain.SyncResult;
 
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -27,22 +25,22 @@ public class Coordinator {
      * @param data
      * @param servers
      */
-    public void push(LogEntry data, List<Worker> servers) {
-        AtomicInteger okResp = new AtomicInteger(0);
-        AtomicInteger failResp = new AtomicInteger(0);
+    public PushResult push(LogEntry data, List<Worker> servers) {
+        AtomicInteger prepareOk = new AtomicInteger(0);
+        AtomicInteger prepareFailed = new AtomicInteger(0);
         ColUtils.foreach(tpc, servers, endpoint -> {
             // Do server agree write a data
             try {
                 boolean prepared = endpoint.prepare(data);
-                int i = prepared ? okResp.incrementAndGet() : failResp.incrementAndGet();
+                int i = prepared ? prepareOk.incrementAndGet() : prepareFailed.incrementAndGet();
                 log.info("endpoint:{}, succeed:{}", endpoint, prepared);
             } catch (Exception e) {
-                failResp.incrementAndGet();
+                prepareFailed.incrementAndGet();
             }
         }).join();
-        if (context.isMajority(okResp.get())) {
-            AtomicInteger wroteCount = new AtomicInteger(0);
-            AtomicInteger wroteFail = new AtomicInteger(0);
+        AtomicInteger wroteCount = new AtomicInteger(0);
+        AtomicInteger wroteFail = new AtomicInteger(0);
+        if (context.isMajority(prepareOk.get())) {
             ColUtils.foreach(tpc, servers, endpoint -> {
                 try {
                     // write data
@@ -57,13 +55,17 @@ public class Coordinator {
                     wroteFail.incrementAndGet();
                 }
             });
-        } else {
+        }
+
+        if (context.isMajority(prepareFailed.get()) || context.isMajority(wroteFail.get())){
             ColUtils.foreach(tpc, servers, endpoint -> {
                 // rollback data
                 // for loop until rollback to success
                 boolean b = endpoint.rollBack(data);
                 log.info("endpoint:{}, rollback:{}", endpoint, b);
             });
+            return PushResult.ROLLBACK_SUCCESS;
         }
+        return PushResult.SUCCESS;
     }
 }
