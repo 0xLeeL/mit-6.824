@@ -1,3 +1,8 @@
+# 最新任务
+1. 实现一阶段和二阶段 提交事务    
+   为了实现类似于zab那的功能
+2. 日志的恢复
+
 # raft 需求
 **raft status flow**
 ![](./img/raft_status_flow.png)

@@ -37,6 +37,13 @@ public record Endpoint(
                 SyncResult.class
         );
     }
+    public SyncResult rollback(LogEntry logEntry) {
+        return call(
+                Constant.LOG_SYNC_PATH,
+                logEntry,
+                SyncResult.class
+        );
+    }
 
     /**
      * Tell all servers, election has been done.
