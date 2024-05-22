@@ -127,7 +127,7 @@ public class ElectionRaft implements Election {
             log.info("propose result is :{}", propose);
             return Optional.ofNullable(propose);
         } catch (Exception e) {
-            log.error("propose failed:{}", endpoint);
+            log.error("propose failed:{}, fail reason:{}", endpoint,e.getMessage(),e);
         }
         return Optional.empty();
     }

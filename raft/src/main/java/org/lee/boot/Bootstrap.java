@@ -9,6 +9,8 @@ import org.lee.heartbeat.HeartBeatReceiver;
 import org.lee.heartbeat.HeartBeatSender;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
+import org.lee.rpc.netty.ServerNetty;
+import org.lee.rpc.socket.ServerSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,17 +90,18 @@ public class Bootstrap {
             context.setHeartBeatSender(heartBeatSender);
             heartBeatSender.schedule();
         }
-        return server.start();
+        return CompletableFuture.runAsync(()->{});
     }
 
     public Server init(){
-        Server server = new Server(this.globalConfig,this.context);
+        Server server = new ServerNetty(this.globalConfig,this.context);
         LogSyncer.follow(server);
 
         context.setServer(server);
 
         globalConfig.getServers().forEach(context::addEndpoint);
         log.info("servers is:{}", context.getEndpoints());
+        server.start();
         return server;
     }
 

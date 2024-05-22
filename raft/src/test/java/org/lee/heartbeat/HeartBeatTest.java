@@ -24,7 +24,7 @@ public class HeartBeatTest {
     private final Logger log = LoggerFactory.getLogger(HeartBeatTest.class);
 
     @Test
-    void test_ping() {
+    void test_ping() throws Exception {
         Context context = new Context();
         Server server = Bootstrap.builder().global(context).globalConfig(new GlobalConfig()).startServer();
         HeartBeatReceiver receiver = new HeartBeatReceiver(server);

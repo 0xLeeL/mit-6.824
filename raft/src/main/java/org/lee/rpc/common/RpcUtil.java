@@ -1,10 +1,17 @@
 package org.lee.rpc.common;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.channel.Channel;
+import org.lee.common.rpc.Rpc;
 import org.lee.common.utils.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
 public class RpcUtil {
@@ -57,6 +64,23 @@ public class RpcUtil {
         int len = RpcUtil.byteToInt(lenBytes);
         byte[] dataBytes = inputStream.readNBytes(len);
         return JsonUtil.fromJson(dataBytes,cls);
+    }
+
+    public static String readToString(ByteBuf byteBuf) throws IOException, ClassNotFoundException {
+        byte[] lenBytes = new byte[4];
+        byteBuf.readBytes(lenBytes,0,lenBytes.length);
+        int len = RpcUtil.byteToInt(lenBytes);
+        byte[] bytes = new byte[len];
+        byteBuf.readBytes(bytes);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+    public static void send(Channel channel, Object obj) {
+        String send = (obj instanceof String)? (String) obj : JsonUtil.toJson(obj);
+        byte[] bytes = send.getBytes(StandardCharsets.UTF_8);
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeBytes(RpcUtil.intToByte(bytes.length));
+        buffer.writeBytes(bytes,0,bytes.length);
+        channel.writeAndFlush(buffer);
     }
 
 }
