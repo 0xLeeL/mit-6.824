@@ -32,10 +32,9 @@ public class Client<T, R> implements RpcCaller<T, R> {
     }
 
 
-    public R call(String path, T commend, Class<R> resultClass) {
+    public R call(String path, T command, Class<R> resultClass) {
         try (OutputStream outputStream = socket.getOutputStream()) {
-            RpcUtil.sendString(path, outputStream);
-            RpcUtil.sendObj(commend, outputStream);
+            RpcUtil.sendRequest(path,command, outputStream);
             socket.setSoTimeout(config.getTimeoutMill());
             InputStream inputStream = socket.getInputStream();
             R result = RpcUtil.readToObject(inputStream, resultClass);

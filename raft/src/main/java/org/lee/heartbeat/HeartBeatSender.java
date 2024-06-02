@@ -50,6 +50,7 @@ public class HeartBeatSender {
             health(call);
             client.close();
         } catch (Throwable e) {
+            log.error(e.getMessage(),e);
             log.info("ping failed");
         }
     }

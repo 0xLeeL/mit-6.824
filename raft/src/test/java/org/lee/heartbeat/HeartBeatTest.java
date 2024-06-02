@@ -59,7 +59,7 @@ public class HeartBeatTest {
 
         RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
             @Override
-            public String call(String path, String commend, Class<String> resultClass) {
+            public String call(String path, String command, Class<String> resultClass) {
                 onFailed();
                 return "";
             }

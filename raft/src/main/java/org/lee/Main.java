@@ -1,5 +1,7 @@
 package org.lee;
 
+import org.lee.boot.Bootstrap;
+
 import java.io.IOException;
 
 public class Main {
@@ -16,11 +18,14 @@ public class Main {
 
         String cmd2 = String.format("java %s -Dconfig.file=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\raft\\src\\main\\resources\\server2.properties -Dlog.dir=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\log\\server2 -cp %s org.lee.boot.Bootstrap", arg, path);
 
-        String cmd3 = String.format("java %s -Dconfig.file=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\raft\\src\\main\\resources\\server3.properties -Dlog.dir=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\log\\server3 -cp %s org.lee.boot.Bootstrap", arg, path);
+//        String cmd3 = String.format("java %s -Dconfig.file=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\raft\\src\\main\\resources\\server3.properties" +
+//                " -Dlog.dir=C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\log\\server3 -cp %s org.lee.boot.Bootstrap", arg, path);
 
         launchJavaAppInNewWindow(cmd1);
         launchJavaAppInNewWindow(cmd2);
-        launchJavaAppInNewWindow(cmd3);
+//        launchJavaAppInNewWindow(cmd3);
+        System.setProperty("config.file","C:\\\\Users\\\\oo\\\\Desktop\\\\code\\\\java\\\\mit-6.824\\\\raft\\\\src\\\\main\\\\resources\\\\server3.properties");
+        Bootstrap.main(args);
     }
 
     private static void launchJavaAppInNewWindow(String cmd) {
