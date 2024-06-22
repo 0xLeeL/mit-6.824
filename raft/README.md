@@ -24,12 +24,12 @@
   - [x] 收到 put data的log entry ，更新db的数据
 - [x] leader 
   - [x] Upon electionRaft: send initial empty AppendEntries RPCs  (heartbeat) to each server; repeat during idle periods to prevent electionRaft timeouts, and maintain metadata of the all followers;
-  - [ ] If command received from client: append entry to local log, respond after entry applied to state machine
+  - [ ] If command received from clientSocket: append entry to local log, respond after entry applied to state machine
   - [ ] If last log index ≥ nextIndex for a follower: send AppendEntries RPC with log entries starting at nextIndex
     - [ ] If successful: update nextIndex and matchIndex for follower
     - [ ] If AppendEntries fails because of log inconsistency: decrement nextIndex and retry
   - [ ] If there exists an N such that N > commitIndex, a majority of matchIndex[i] ≥ N, and log[N].term == currentTerm: set commitIndex = N
-- [x] client
+- [x] clientSocket
   - [x] 处理各种不同情况的redirect
 ## 2. append log
 - [x] master send data

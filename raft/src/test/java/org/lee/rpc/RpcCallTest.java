@@ -4,7 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.common.utils.ThreadUtil;
-import org.lee.rpc.socket.Client;
+import org.lee.rpc.socket.ClientSocket;
 import org.lee.rpc.socket.ServerSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +25,9 @@ public class RpcCallTest {
         String result = "call result";
         Server server = new ServerSocketImpl(port);
         server.register(path,  requestJson -> result);
-        Client<String,String> client = new Client<>("localhost",port);
-        client.connect();
-        String call = client.call(path, callCommend, String.class);
+        ClientSocket<String,String> clientSocket = new ClientSocket<>("localhost",port);
+        clientSocket.connect();
+        String call = clientSocket.call(path, callCommend, String.class);
         Assertions.assertEquals(result,call);
         server.close();
     }
@@ -41,13 +41,13 @@ public class RpcCallTest {
             return "result";
         });
         AtomicBoolean timeouted = new AtomicBoolean(false);
-        Client<String,String> client = new Client<>("localhost",port, RpcConfig.builder().timeoutMill(100));
-        client.setSendFail(()->{
+        ClientSocket<String,String> clientSocket = new ClientSocket<>("localhost",port, RpcConfig.builder().timeoutMill(100));
+        clientSocket.setSendFail(()->{
             log.info("setSendFail");
             timeouted.set(true);
         });
-        client.connect();
-        String call = client.call(path, "callCommend", String.class);
+        clientSocket.connect();
+        String call = clientSocket.call(path, "callCommend", String.class);
         Assertions.assertNull(call);
         Assertions.assertTrue(timeouted.get());
         server.close();

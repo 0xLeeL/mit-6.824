@@ -12,8 +12,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class Client<T, R> implements RpcCaller<T, R> {
-    private static final Logger log = LoggerFactory.getLogger(Client.class);
+public class ClientSocket<T, R> implements RpcCaller<T, R> {
+    private static final Logger log = LoggerFactory.getLogger(ClientSocket.class);
 
     private final String host;
     private final Integer port;
@@ -22,11 +22,11 @@ public class Client<T, R> implements RpcCaller<T, R> {
     private Runnable sendFail = () -> {
     };
 
-    public Client(String host, Integer port) {
+    public ClientSocket(String host, Integer port) {
         this(host, port, new RpcConfig());
     }
 
-    public Client(String host, Integer port, RpcConfig config) {
+    public ClientSocket(String host, Integer port, RpcConfig config) {
         this.host = host;
         this.port = port;
         this.socket = new Socket();

@@ -9,7 +9,6 @@ import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.netty.ClientNetty;
-import org.lee.rpc.socket.Client;
 
 /**
  * This class record the all server in the cluster.

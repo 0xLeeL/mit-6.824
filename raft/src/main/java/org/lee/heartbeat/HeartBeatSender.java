@@ -5,7 +5,9 @@ import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.TimerUtils;
 import org.lee.election.Election;
-import org.lee.rpc.socket.Client;
+import org.lee.rpc.factory.ClientFactory;
+import org.lee.rpc.netty.ClientNetty;
+import org.lee.rpc.socket.ClientSocket;
 import org.lee.rpc.RpcCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +31,11 @@ public class HeartBeatSender {
     public HeartBeatSender(Context context, GlobalConfig globalConfig, Election election) {
         this.context = context;
         this.globalConfig = globalConfig;
-        this.clientSupplier = () -> new Client<>(globalConfig.getMasterHost(), globalConfig.getMasterPort()) {
+
+        this.clientSupplier = () -> new ClientNetty<>(globalConfig.getMasterHost(), globalConfig.getMasterPort()) {
             @Override
             public void onFailed() {
-                log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
+                log.info("send  to {}:{} ", globalConfig.getMasterHost(), globalConfig.getMasterPort());
 
                 tryElect();
             }
@@ -43,14 +46,14 @@ public class HeartBeatSender {
 
     public void ping() {
         try {
-            log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
+            log.info("send  to {}:{} ", globalConfig.getMasterHost(), globalConfig.getMasterPort());
             RpcCaller<String, String> client = clientSupplier.get();
             client.connect();
             String call = client.call(Constant.HEART_BEAT_PATH, Constant.HEART_REQ, String.class);
             health(call);
             client.close();
         } catch (Throwable e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             log.info("ping failed");
         }
     }
@@ -69,7 +72,7 @@ public class HeartBeatSender {
 
     void tryElect() {
         int fail = failTimes.incrementAndGet();
-        log.info("send  to {}:{} ",globalConfig.getMasterHost(),globalConfig.getMasterPort());
+        log.info("send  to {}:{} ", globalConfig.getMasterHost(), globalConfig.getMasterPort());
         log.info("failed {} times", fail);
         if (fail >= globalConfig.getRetryTimes() && context.masterIsHealth()) {
             context.setMasterStatus(MasterStatus.SUSPEND);
@@ -82,8 +85,8 @@ public class HeartBeatSender {
         this.clientSupplier = clientSupplier;
     }
 
-    public void stop(){
-        if (timer!=null) {
+    public void stop() {
+        if (timer != null) {
             timer.cancel();
         }
     }

@@ -22,14 +22,7 @@ import java.util.concurrent.CountDownLatch;
 public class NettyUtils {
     private static final Logger log = LoggerFactory.getLogger(NettyUtils.class);
 
-    public void server(int port) throws InterruptedException {
-        ChannelInboundHandlerAdapter channelRegister = new ChannelInboundHandlerAdapter() {
-            @Override
-            public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                Channel channel = ctx.channel();
-                super.channelActive(ctx);
-            }
-        };
+    public static void server(int port) throws InterruptedException {
         MessageToMessageDecoder<String> handler = new MessageToMessageDecoder<>() {
             @Override
             protected void decode(ChannelHandlerContext ctx, String msg, List<Object> out) throws Exception {
@@ -37,26 +30,29 @@ public class NettyUtils {
                 out.add(msg);
             }
         };
+        server(port, handler);
+    }
+
+    public static void server(int port, ChannelInboundHandlerAdapter channelInboundHandlerAdapter) throws InterruptedException {
+
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() << 2));
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-                ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast(channelRegister);
                 addLast(ch);
-                ch.pipeline().addLast(handler);
+                ch.pipeline().addLast(channelInboundHandlerAdapter);
 //                ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
 //                    @Override
 //                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//                        System.out.println("1 received" + msg);
+//                        System.out.println("server handler 1 received :" + msg);
 //                        super.channelRead(ctx, msg);
 //                    }
 //                }).addLast(new ChannelInboundHandlerAdapter() {
 //                    @Override
 //                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//                        System.out.println("2 received" + msg);
+//                        System.out.println("server handler 2 received :" + msg);
 //                        super.channelRead(ctx, msg);
 //                    }
 //                });
@@ -97,7 +93,7 @@ public class NettyUtils {
     }
 
 
-    public static Channel client(String host, int port,ChannelInboundHandlerAdapter inboundHandlerAdapter) throws InterruptedException {
+    public static Channel client(String host, int port, ChannelInboundHandlerAdapter inboundHandlerAdapter) throws InterruptedException {
         Bootstrap bootstrap = new Bootstrap();
 
         return bootstrap.group(new NioEventLoopGroup(1))
@@ -107,52 +103,52 @@ public class NettyUtils {
                     @Override
                     protected void initChannel(SocketChannel ch) {
                         NettyUtils.addLast(ch);
-                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
-                                    @Override
-                                    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-                                        System.out.println("client write 1" + msg);
-                                        super.write(ctx, msg, promise);
-                                    }
-                                })
-                                .addLast(new ChannelOutboundHandlerAdapter() {
-                                    @Override
-                                    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-                                        System.out.println("client write 2" + msg);
-                                        super.write(ctx, msg, promise);
-                                    }
-                                });
+                        ch.pipeline().addLast(inboundHandlerAdapter);
+//                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
+//                                    @Override
+//                                    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+//                                        System.out.println("client write 1" + msg);
+//                                        super.write(ctx, msg, promise);
+//                                    }
+//                                })
+//                                .addLast(new ChannelOutboundHandlerAdapter() {
+//                                    @Override
+//                                    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+//                                        System.out.println("client write 2" + msg);
+//                                        super.write(ctx, msg, promise);
+//                                    }
+//                                });
 
-                        ch.pipeline()
-                                .addLast(inboundHandlerAdapter)
-                                .addLast(new ChannelInboundHandlerAdapter(){
-                                    @Override
-                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                        System.out.println("1 client received: "+msg);
-                                        super.channelRead(ctx, msg);
-                                    }
-                                })
-                                .addLast(new ChannelInboundHandlerAdapter(){
-                                    @Override
-                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                        System.out.println("2 client received: "+msg);
-                                        super.channelRead(ctx, msg);
-                                    }
-                                })
-                        ;
-                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
-                            @Override
-                            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-                                System.out.println("tail:" + msg);
-                                super.write(ctx, msg, promise);
-                            }
-                        });
-                        ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
-                            @Override
-                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                                System.out.println("read: " + msg);
-                                super.channelRead(ctx, msg);
-                            }
-                        });
+//                        ch.pipeline()
+//                                .addLast(new ChannelInboundHandlerAdapter(){
+//                                    @Override
+//                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                                        System.out.println("1 client received: "+msg);
+//                                        super.channelRead(ctx, msg);
+//                                    }
+//                                })
+//                                .addLast(new ChannelInboundHandlerAdapter(){
+//                                    @Override
+//                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                                        System.out.println("2 client received: "+msg);
+//                                        super.channelRead(ctx, msg);
+//                                    }
+//                                })
+//                        ;
+//                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
+//                            @Override
+//                            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+//                                System.out.println("tail:" + msg);
+//                                super.write(ctx, msg, promise);
+//                            }
+//                        });
+//                        ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+//                            @Override
+//                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                                System.out.println("read: " + msg);
+//                                super.channelRead(ctx, msg);
+//                            }
+//                        });
                     }
                 })
                 .connect(new InetSocketAddress(host, port))

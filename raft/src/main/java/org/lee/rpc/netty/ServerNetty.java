@@ -11,6 +11,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
+import org.lee.common.utils.JsonUtil;
 import org.lee.rpc.Request;
 import org.lee.rpc.Server;
 import org.lee.rpc.common.RpcUtil;
@@ -40,20 +41,9 @@ public class ServerNetty extends Server {
 
 
     public CompletableFuture<Void> listen() {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        CompletableFuture.runAsync(() -> {
-            try {
-                start1(new ChannelInboundHandlerAdapterImpl(), getGlobalConfig().getCurrentPort(), countDownLatch::countDown);
-            } catch (InterruptedException e) {
-                log.warn("start failed");
-                log.error(e.getMessage(), e);
-                countDownLatch.countDown();
-                throw new RuntimeException(e);
-            }
-        });
 
         try {
-            countDownLatch.await();
+            start1(getGlobalConfig().getCurrentPort());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -61,49 +51,8 @@ public class ServerNetty extends Server {
         });
     }
 
-
-    public static void start1(ChannelInboundHandler inboundHandler, int port) throws InterruptedException {
-        start1(inboundHandler, port, () -> {
-        });
-    }
-
-    public static void start1(ChannelInboundHandler inboundHandler, int port, Runnable success) throws InterruptedException {
-
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() << 2));
-        bootstrap.channel(NioServerSocketChannel.class);
-        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
-                ch.pipeline()
-                        .addLast(
-                                new LengthFieldBasedFrameDecoder(
-                                        1024 * 1024,
-                                        0, 2,
-                                        0, 2))
-                        .addLast(inboundHandler)
-                        .addLast(new MessageToByteEncoder() {
-                            @Override
-                            protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) {
-                                log.info("out:{}", msg);
-                                RpcUtil.write(out, msg);
-                            }
-                        });
-            }
-        });
-
-        ChannelFuture closeFuture = bootstrap.bind(port)
-                .addListener((ChannelFutureListener) future1 -> {
-                    if (future1.isSuccess()) {
-                        log.info("started on :{}", port);
-                        success.run();
-                        ;
-                    } else {
-                        log.error("falied:{},{}", port, future1.cause().getMessage(), future1.cause());
-                    }
-                })
-                .channel()
-                .closeFuture().sync();
+    public void start1(int port) throws InterruptedException {
+        NettyUtils.server(port, new ChannelInboundHandlerAdapterImpl());
     }
 
     @Override
@@ -116,20 +65,24 @@ public class ServerNetty extends Server {
         }
     }
 
+    @ChannelHandler.Sharable
     public class ChannelInboundHandlerAdapterImpl extends ChannelInboundHandlerAdapter {
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             log.info("received :{}", msg);
-            if (msg instanceof ByteBuf bb) {
-                String path = RpcUtil.readToString(bb);
-                log.info("path:{}", path);
-                String requestJson = RpcUtil.readToString(bb);
-                getDispatcher().dispatch(new Request(requestJson, path, response -> {
-                    log.info("tosend:{}", response);
-                    Channel r = ctx.channel();
-                    r.writeAndFlush(response);
-                }));
+            if (msg instanceof String json) {
 
+                Request request = JsonUtil.fromJson(json, Request.class);
+                String path = request.getPath();
+                log.info("path:{}", path);
+
+                request.setResponse(response -> {
+                    log.info("tosend:{}", response);
+                    String resp = response instanceof String ? (String) response : JsonUtil.toJson(response);
+                    Channel r = ctx.channel();
+                    r.writeAndFlush(resp);
+                });
+                getDispatcher().dispatch(request);
             }
         }
     }

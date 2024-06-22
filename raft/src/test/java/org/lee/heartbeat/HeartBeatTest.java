@@ -8,7 +8,7 @@ import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
 import org.lee.election.Election;
 import org.lee.heartbeat.handler.HeartBeatHandler;
-import org.lee.rpc.socket.Client;
+import org.lee.rpc.socket.ClientSocket;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.Server;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class HeartBeatTest {
         Election election = mock(Election.class);
         HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, election);
 
-        RpcCaller<String, String> rpcCaller = new Client<>("", 0) {
+        RpcCaller<String, String> rpcCaller = new ClientSocket<>("", 0) {
             @Override
             public String call(String path, String command, Class<String> resultClass) {
                 onFailed();

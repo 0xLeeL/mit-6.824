@@ -4,7 +4,11 @@ import org.lee.client.core.Operation;
 import org.lee.client.domain.Config;
 import org.lee.common.Constant;
 import org.lee.election.Endpoint;
-import org.lee.rpc.socket.Client;
+import org.lee.rpc.RpcCaller;
+import org.lee.rpc.RpcConfig;
+import org.lee.rpc.factory.ClientFactory;
+import org.lee.rpc.netty.ClientNetty;
+import org.lee.rpc.socket.ClientSocket;
 import org.lee.store.domain.GetRequest;
 import org.lee.store.domain.PutRequest;
 import org.lee.store.domain.PutResult;
@@ -34,14 +38,15 @@ public class OperationImpl implements Operation {
     @Override
     public String get(String key) {
         GetRequest getRequest = new GetRequest(key);
-        Client<GetRequest, String> localhost = new Client<>(config.getHost(), config.getPort());
+        RpcCaller<GetRequest, String> localhost = ClientFactory.ofNetty(config.getHost(), config.getPort());
         localhost.connect();
         return localhost.call(Constant.GET_DATA_PATH, getRequest, String.class);
     }
 
     private <T, R> R call(T t, Class<R> cls) {
-        Client<T, R> localhost = new Client<>(config.getHost(), config.getPort());
+        RpcCaller<T, R> localhost = ClientFactory.ofNetty(config.getHost(), config.getPort());
         localhost.connect();
         return localhost.call(Constant.PUT_DATA_PATH, t, cls);
     }
+
 }
