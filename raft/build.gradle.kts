@@ -24,5 +24,13 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    jvmArgs("--add-opens","java.base/java.lang=ALL-UNNAMED")
+    jvmArgs(
+        "--add-opens",
+        "java.base/java.lang=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/jdk.internal.misc=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/java.nio=ALL-UNNAMED",
+        "-Dio.netty.tryReflectionSetAccessible=true"
+    )
 }

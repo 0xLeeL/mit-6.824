@@ -7,7 +7,9 @@ import org.lee.election.domain.Propose;
 import org.lee.election.domain.ProposeResult;
 import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
-import org.lee.rpc.Client;
+import org.lee.rpc.RpcCaller;
+import org.lee.rpc.netty.ClientNetty;
+import org.lee.rpc.socket.Client;
 
 /**
  * This class record the all server in the cluster.
@@ -60,7 +62,7 @@ public record Endpoint(
     }
 
     private <R, T> R call(String path, T req, Class<R> cls) {
-        Client<T, R> client = new Client<>(host, port);
+        RpcCaller<T, R> client = new ClientNetty<>(host, port);
         client.connect();
         return client.call(
                 path,

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lee.common.utils.ThreadUtil;
+import org.lee.rpc.socket.Client;
+import org.lee.rpc.socket.ServerSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +18,12 @@ public class RpcCallTest {
 
     }
     @Test
-    void test_call() {
+    void test_call() throws Exception {
         int port = 80;
         String path = "aaa";
         String callCommend = "call commend";
         String result = "call result";
-        Server server = new Server(port);
+        Server server = new ServerSocketImpl(port);
         server.register(path,  requestJson -> result);
         Client<String,String> client = new Client<>("localhost",port);
         client.connect();
@@ -30,10 +32,10 @@ public class RpcCallTest {
         server.close();
     }
     @Test
-    void test_call_timeout() {
+    void test_call_timeout() throws Exception {
         int port = 80;
         String path = "aaa";
-        Server server = new Server(port);
+        Server server = new ServerSocketImpl(port);
         server.register(path, requestJson -> {
             ThreadUtil.sleep(1_000);
             return "result";

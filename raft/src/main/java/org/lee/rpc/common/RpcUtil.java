@@ -51,6 +51,12 @@ public class RpcUtil {
         outputStream.write(objBytes);
         outputStream.flush();
     }
+    public static <T> void sendRequest(String path,T obj, Channel outputStream){
+        String json1 = JsonUtil.toJson(obj);
+        int length = json1.getBytes().length;
+        String json =  path.getBytes().length + path + length + json1;
+        outputStream.writeAndFlush(json);
+    }
 
 
     public static String readToString(InputStream inputStream) throws IOException {

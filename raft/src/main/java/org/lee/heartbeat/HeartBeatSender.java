@@ -5,7 +5,7 @@ import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.TimerUtils;
 import org.lee.election.Election;
-import org.lee.rpc.Client;
+import org.lee.rpc.socket.Client;
 import org.lee.rpc.RpcCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

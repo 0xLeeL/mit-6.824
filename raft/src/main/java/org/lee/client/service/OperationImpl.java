@@ -4,9 +4,8 @@ import org.lee.client.core.Operation;
 import org.lee.client.domain.Config;
 import org.lee.common.Constant;
 import org.lee.election.Endpoint;
-import org.lee.rpc.Client;
+import org.lee.rpc.socket.Client;
 import org.lee.store.domain.GetRequest;
-import org.lee.store.domain.GetResult;
 import org.lee.store.domain.PutRequest;
 import org.lee.store.domain.PutResult;
 

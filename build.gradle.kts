@@ -36,8 +36,8 @@ allprojects {
     tasks.test{
         useJUnitPlatform()
         jvmArgs(
-            "-Djunit.jupiter.execution.parallel.config.dynamic.factor=8",
-            "-Djunit.jupiter.execution.parallel.config.fixed.parallelism=8",
+//            "-Djunit.jupiter.execution.parallel.config.dynamic.factor=8",
+//            "-Djunit.jupiter.execution.parallel.config.fixed.parallelism=8",
         )
     }
     dependencies{

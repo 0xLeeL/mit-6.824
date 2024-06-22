@@ -38,3 +38,27 @@ https://pdos.csail.mit.edu/6.824/labs/lab-raft.html[rpc.go]
 
 
 - 为了阻止选票起初就被瓜分，选举超时时间是从一个固定的区间（例如 150-300 毫秒）随机选择。
+
+
+# netty 使用注意问题
+### pipeline
+pipeline 的读写顺序是相反的
+
+```java
+class Demo {
+    void test_pipeline(Channel ch) {
+        ch.pipeline()
+                .addLast(inBoundHandler1)
+                .addLast(inBoundHandler2)
+                .addLast(inBoundHandler3)
+                // 这里的 消息进入顺序是 
+                // inBoundHandler1 -> inBoundHandler2 -> inBoundHandler3
+
+                .addLast(outBoundHandler1)
+                .addLast(outBoundHandler2)
+                .addLast(outBoundHandler3);
+                // 这里的 消息写出顺序是 
+                // outBoundHandler3 -> outBoundHandler2 outBoundHandler1
+    }
+}
+```

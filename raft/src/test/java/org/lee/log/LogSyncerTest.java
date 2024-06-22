@@ -12,7 +12,7 @@ import org.lee.util.StartServer;
 public class LogSyncerTest {
 
     @Test
-    void test_logSync() {
+    void test_logSync() throws Exception {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;

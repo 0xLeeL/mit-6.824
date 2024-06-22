@@ -8,7 +8,7 @@ import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
 import org.lee.election.Election;
 import org.lee.heartbeat.handler.HeartBeatHandler;
-import org.lee.rpc.Client;
+import org.lee.rpc.socket.Client;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.Server;
 import org.slf4j.Logger;

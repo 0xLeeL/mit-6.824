@@ -1,7 +1,7 @@
 package org.lee.tpc;
 
 import org.lee.common.Constant;
-import org.lee.rpc.Client;
+import org.lee.rpc.socket.Client;
 
 public class WorkerRpc implements Worker{
     private final Client client;

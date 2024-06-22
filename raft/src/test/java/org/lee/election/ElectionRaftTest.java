@@ -16,7 +16,7 @@ import java.util.Set;
 public class ElectionRaftTest {
 
     @Test
-    void test_election() {
+    void test_election() throws Exception {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;
@@ -41,7 +41,7 @@ public class ElectionRaftTest {
      *
      */
     @Test
-    void test_election_join() {
+    void test_election_join() throws Exception {
         int p1 = 81;
         int p2 = 82;
         int p3 = 83;
@@ -72,7 +72,7 @@ public class ElectionRaftTest {
         e3.getSecond().close();
     }
 
-    void launchNew(int port) {
+    void launchNew(int port) throws Exception {
         Pair<ElectionRaft, Server> newE1 = getElection(port);
         CurrentActor elect = newE1.getFirst().elect();
         Assertions.assertEquals(CurrentActor.FOLLOWER, elect);
