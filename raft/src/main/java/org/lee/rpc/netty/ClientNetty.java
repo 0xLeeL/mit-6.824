@@ -28,10 +28,10 @@ public class ClientNetty<T, R> implements RpcCaller<T, R> {
     private CountDownLatch latch = new CountDownLatch(1);
 
     public void client(Consumer<String> responseHandler) throws InterruptedException {
-        Channel channel = NettyUtils.client(this.host, this.port,new ChannelInboundHandlerAdapter(){
+        Channel channel = NettyUtils.client(this.host, this.port, new ChannelInboundHandlerAdapter() {
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                if (msg instanceof String s){
+                if (msg instanceof String s) {
                     responseHandler.accept(s);
                 }
                 super.channelRead(ctx, msg);
@@ -48,7 +48,8 @@ public class ClientNetty<T, R> implements RpcCaller<T, R> {
                 latch.countDown();
             };
             client(responseHandler);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -65,15 +66,16 @@ public class ClientNetty<T, R> implements RpcCaller<T, R> {
         channel.writeAndFlush(JsonUtil.toJson(request));
         try {
             boolean await = latch.await(10, TimeUnit.SECONDS);
-            if (await){
-                if (String.class.equals(resultClass)){
+            if (await) {
+                if (String.class.equals(resultClass)) {
                     return (R) result;
                 }
-                return JsonUtil.fromJson(result,resultClass);
+                return JsonUtil.fromJson(result, resultClass);
             }
             // await is false , read timeout.
             return null;
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
