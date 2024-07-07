@@ -32,13 +32,13 @@ public class HeartBeatSender {
         this.context = context;
         this.globalConfig = globalConfig;
 
-        this.clientSupplier = () -> new ClientNetty<>(globalConfig.getMasterHost(), globalConfig.getMasterPort()) {
-            @Override
-            public void onFailed() {
+        this.clientSupplier = () -> {
+            RpcCaller<String,String> objectObjectRpcCaller = ClientFactory.ofNetty(globalConfig.getMasterHost(), globalConfig.getMasterPort());
+            ((ClientNetty<String, String>) objectObjectRpcCaller).setSendFail(() -> {
                 log.info("send  to {}:{} ", globalConfig.getMasterHost(), globalConfig.getMasterPort());
-
                 tryElect();
-            }
+            });
+            return objectObjectRpcCaller;
         };
         this.election = election;
     }

@@ -8,6 +8,7 @@ import org.lee.election.domain.ProposeResult;
 import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.RpcCaller;
+import org.lee.rpc.factory.ClientFactory;
 import org.lee.rpc.netty.ClientNetty;
 
 /**
@@ -38,6 +39,7 @@ public record Endpoint(
                 SyncResult.class
         );
     }
+
     public SyncResult rollback(LogEntry logEntry) {
         return call(
                 Constant.LOG_SYNC_PATH,
@@ -61,7 +63,7 @@ public record Endpoint(
     }
 
     private <R, T> R call(String path, T req, Class<R> cls) {
-        RpcCaller<T, R> client = new ClientNetty<>(host, port);
+        RpcCaller<T, R> client = ClientFactory.ofNetty(host, port);
         client.connect();
         return client.call(
                 path,
