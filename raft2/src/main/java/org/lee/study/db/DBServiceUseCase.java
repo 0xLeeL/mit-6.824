@@ -1,4 +1,4 @@
-package org.lee.store.core;
+package org.lee.study.db;
 
 public interface DBServiceUseCase {
     boolean set(String key,Object value);

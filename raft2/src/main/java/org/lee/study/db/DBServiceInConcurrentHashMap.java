@@ -1,6 +1,4 @@
-package org.lee.store.service;
-
-import org.lee.store.core.DBServiceUseCase;
+package org.lee.study.db;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,10 +11,7 @@ public class DBServiceInConcurrentHashMap implements DBServiceUseCase {
     private final Set<String> PREPARE = new ConcurrentSkipListSet<>();
     @Override
     public boolean set(String key, Object value) {
-        if (PREPARE.contains(key)) {
-            return DB.put(key,value) == value;
-        }
-        return false;
+        return DB.put(key,value) != value;
     }
 
     @Override

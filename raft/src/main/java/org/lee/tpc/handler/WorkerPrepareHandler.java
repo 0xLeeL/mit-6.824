@@ -5,7 +5,6 @@ import org.lee.log.domain.LogEntry;
 import org.lee.rpc.Handler;
 import org.lee.store.core.DBServiceUseCase;
 import org.lee.store.domain.PutRequest;
-import org.lee.tpc.Worker;
 
 public class WorkerPrepareHandler implements Handler {
     private final DBServiceUseCase dbServiceUseCase;

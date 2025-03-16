@@ -1,7 +1,6 @@
 package org.lee.log.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.lee.common.Constant;
 import org.lee.common.Context;
 import org.lee.common.utils.JsonUtil;
 import org.lee.log.domain.LogEntry;
