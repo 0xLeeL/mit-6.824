@@ -18,10 +18,8 @@ public class GlobalConfig {
 
 
 
-    @Builder.Default
-    private String masterHost = "localhost";
-    @Builder.Default
-    private int masterPort = 80;
+    private String masterHost;
+    private int masterPort;
     @Builder.Default
     private int currentPort = 80;
     @Builder.Default
@@ -33,25 +31,8 @@ public class GlobalConfig {
     @Builder.Default
     private Set<Endpoint> initServers = Set.of();
 
-    public String getMasterHost() {
-        return masterHost;
-    }
-
-    public int getMasterPort() {
-        return masterPort;
-    }
-
-
-    public void setCurrentPort(int currentPort) {
-        this.currentPort = currentPort;
-    }
-
-    public int getCurrentPort() {
-        return currentPort;
-    }
-
-    public String getCurrentHost() {
-        return currentHost;
+    public void setMasterHost(String masterHost) {
+        this.masterHost = masterHost;
     }
 
     public String getCurrentAddr() {

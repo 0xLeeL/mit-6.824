@@ -21,7 +21,7 @@ public record Endpoint(
         this(port,host,"");
     }
 
-    public String getAddr(){
+    public String addr(){
         return host + ":" + port;
     }
     /**

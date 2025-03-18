@@ -28,19 +28,20 @@ public class NodeUpdateHandler implements Handler {
     public NodeUpdateResult handle(String requestJson) {
         NodeUpdate propose = JsonUtil.fromJson(requestJson, NodeUpdate.class);
         log.info("current epoch is {}, receive:{}", context.getEpoch(), propose);
-        Endpoint endpoint = context.getEndpoint(propose.getEndpoint());
-        if (endpoint.status().equals(propose.getEndpoint().status())) {
+        Endpoint requestEndpoint = propose.getEndpoint();
+        Endpoint endpointExists = context.getEndpoint(requestEndpoint);
+        if (endpointExists != null && endpointExists.status().equals(propose.getEndpoint().status())) {
             return NodeUpdateResult.ok();
         }
         if (!context.isMaster() && propose.isFromMaster()) {
-            context.addEndpoint(endpoint);
+            context.addEndpoint(propose.getEndpoint());
             return NodeUpdateResult.ok();
         }
         // 如果不是 master 节点，那么就需要重定向到 master 节点
         if (!context.isMaster() && propose.isFromNode()) {
             return NodeUpdateResult.redirect(context.getMaster());
         }
-        return upgrade(propose);
+        return upgrade(propose.getEndpoint());
     }
 
     /**
@@ -49,15 +50,16 @@ public class NodeUpdateHandler implements Handler {
      * @param propose
      * @return
      */
-    private NodeUpdateResult upgrade(NodeUpdate propose) {
+    private NodeUpdateResult upgrade(Endpoint endpoint) {
         /*
          * 这里存在配置升级过程中的一个并发问题。
          */
+        NodeUpdate nodeUpdate = NodeUpdate.ofMaster(endpoint);
         Set<Endpoint> endpoints = context.getEndpoints();
         CountDownLatch count = new CountDownLatch(context.getMajority());
         for (Endpoint c : endpoints) {
             ThreadUtil.submit(() -> {
-                NodeUpdateResult nodeUpdateResult = c.updateNode(propose);
+                NodeUpdateResult nodeUpdateResult = c.updateNode(nodeUpdate);
                 if (nodeUpdateResult != null) {
                     count.countDown();
                 }
@@ -71,7 +73,7 @@ public class NodeUpdateHandler implements Handler {
         }
 
         // 模拟commit
-        context.addEndpoint(propose.getEndpoint());
+        context.addEndpoint(nodeUpdate.getEndpoint());
 
         return NodeUpdateResult.ok();
     }

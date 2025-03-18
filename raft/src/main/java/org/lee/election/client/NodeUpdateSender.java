@@ -9,48 +9,45 @@ public class NodeUpdateSender {
     private static Integer tryTimes = 0;
 
     public static void updateNode(NodeUpdate nodeUpdate, Context context){
-        try{
-            if (tryTimes>10){
-                return;
+        while (tryTimes < 10) {
+
+            NodeUpdateResult nodeUpdateResult;
+            try {
+                nodeUpdateResult = context.getMaster().updateNode(nodeUpdate);
+            } catch (Exception e) {
+                nodeUpdateResult = findMasterNode(nodeUpdate, context);
             }
-            tryTimes++;
-            NodeUpdateResult nodeUpdateResult = context.getMaster().updateNode(nodeUpdate);
+
             if (nodeUpdateResult.isRedirect()){
                 context.updateMaster(nodeUpdateResult.getMasterEndPoint());
-                updateNode(nodeUpdate,context);
-                return;
             }
-            tryTimes = 0;
-        }catch (Exception e){
-            Endpoint masterNode = findMasterNode(nodeUpdate, context);
-            if (masterNode != null){
-                context.updateMaster(masterNode);
-                return;
-            }
-            updateNode(nodeUpdate,context);
-        }
-        if (tryTimes > 10){
-            throw new RuntimeException("update node failed");
-        }
 
+            if (nodeUpdateResult.isOK()) {
+                context.addEndpoint(nodeUpdate.getEndpoint());
+                return;
+            }
+        }
+        throw new RuntimeException("update node failed");
     }
 
-    private static Endpoint findMasterNode(NodeUpdate nodeUpdate, Context context) {
+
+    private static NodeUpdateResult findMasterNode(NodeUpdate nodeUpdate, Context context) {
         for (Endpoint endpoint : context.getEndpoints()) {
             try {
                 NodeUpdateResult nodeUpdateResult = endpoint.updateNode(nodeUpdate);
                 if (nodeUpdateResult.isRedirect()){
-                    return nodeUpdateResult.getMasterEndPoint();
+                    return nodeUpdateResult;
                 }
                 if (nodeUpdateResult.isOK()){
                     tryTimes = 0;
-                    return endpoint;
+                    return nodeUpdateResult;
                 }
+                return nodeUpdateResult;
             }catch (Exception e){
                 // ingore;
-                return null;
+                return NodeUpdateResult.failed();
             }
         }
-        return null;
+        return NodeUpdateResult.failed();
     }
 }

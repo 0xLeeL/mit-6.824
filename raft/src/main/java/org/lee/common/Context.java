@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.lee.common.utils.TimerUtils;
 import org.lee.election.domain.CurrentActor;
 import org.lee.election.Endpoint;
 import org.lee.heartbeat.HeartBeatReceiver;
@@ -15,12 +14,10 @@ import org.lee.rpc.Server;
 import org.lee.store.handler.DbGetDataHandler;
 import org.lee.store.handler.DbPutDataHandler;
 
-import java.sql.Time;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -59,11 +56,11 @@ public class Context {
 //    }
 
     public void addEndpoint(Endpoint endpoint) {
-        endpoints.put(endpoint.getAddr(),endpoint);
+        endpoints.put(endpoint.addr(),endpoint);
     }
 
     public Endpoint getEndpoint(Endpoint endpoint) {
-        return endpoints.get(endpoint.getAddr());
+        return endpoints.get(endpoint.addr());
     }
 
     public Set<Endpoint> getEndpoints() {
