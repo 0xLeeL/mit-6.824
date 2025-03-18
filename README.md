@@ -43,7 +43,14 @@ https://pdos.csail.mit.edu/6.824/labs/lab-raft.html[rpc.go]
 # netty 使用注意问题
 ### pipeline
 pipeline 的读写顺序是相反的
+<pre>
 
+ HEAD <-> BaseHandler1 <-> BaseHandler2 <-> CustomHandler1 <-> CustomHandler2 <-> TAIL
+ 数据进站的顺序为 BaseHandler1 , BaseHandler2 , CustomHandler1 , CustomHandler2
+ 数据出战的顺序为 CustomHandler2 , CustomHandler1 , BaseHandler2  , BaseHandler1
+ 这样的设计可以保证 在进站的时候基础handler 优先处理数据，然后再由我们的自定义handler 处理数据，同时在出战的时候也是最后处理的handler
+
+</pre>
 ```java
 class Demo {
     void test_pipeline(Channel ch) {

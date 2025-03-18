@@ -1,11 +1,11 @@
-package org.lee.common;
+package org.lee.study.common;
 
 public class Constant {
     public static final String HTTP_CONTENT_LENGTH = "LEN";
     public static final String HEART_BEAT_PATH = "HEART_BEAT";
     public static final String ELECTION_PATH = "ELECTION";
-    public static final String NODE_UPDATE = "NODE_UPDATE";
     public static final String LOG_SYNC_PATH = "LOG_SYNC";
+    public static final String APPEND_LOG = "APPEND_LOG";
     public static final String GET_DATA_PATH = "GET_DATA";
     public static final String PUT_DATA_PATH = "PUT_DATA";
     public static final String TPC_PREPARE = "TPC_PREPARE";

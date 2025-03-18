@@ -13,7 +13,7 @@ public class StartServer {
    public static Server start(int port) {
         Context context = new Context();
         GlobalConfig globalConfig = new GlobalConfig();
-        globalConfig.setServers(Set.of(
+        globalConfig.setInitServers(Set.of(
                 new Endpoint(81, "localhost"),
                 new Endpoint(82, "localhost"),
                 new Endpoint(83, "localhost")));

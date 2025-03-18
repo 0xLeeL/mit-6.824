@@ -14,17 +14,33 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.lee.study.server.http.adapter.HttpInboundAdapter;
+import org.lee.study.server.node.ChannelInboundHandlerAdapterImpl;
+import org.lee.study.server.node.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
+
 public class NettyUtils {
     private static final Logger log = LoggerFactory.getLogger(NettyUtils.class);
 
+    public static Server raftNode(int port) throws InterruptedException {
+        return server(port, new ChannelInitializer<>() {
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ChannelPipeline pipeline = ch.pipeline();
+                lengthBasedFrame(ch);
+                // 自定义消息处理器
+                pipeline.addLast(new ChannelInboundHandlerAdapterImpl());
+            }
+        });
+    }
+
+
 
     public static void http(int port) throws InterruptedException {
-        server(port, new ChannelInitializer<SocketChannel>() {
+        Server server = server(port, new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
@@ -36,22 +52,29 @@ public class NettyUtils {
                 pipeline.addLast(new HttpInboundAdapter());
             }
         });
+
+        ChannelFuture channelFuture = server.getChannel().closeFuture();
+        channelFuture.sync();
     }
 
-    public static void server(int port, ChannelInitializer<SocketChannel> initializer) throws InterruptedException {
+
+    public static Server server(int port, ChannelInitializer<SocketChannel> initializer) throws InterruptedException {
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() << 2));
         bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.childHandler(initializer);
-         bootstrap.bind(port)
+
+        Channel channel = bootstrap.bind(port).sync() // 同步监听
                 .addListener((ChannelFutureListener) future1 -> {
                     if (future1.isSuccess()) {
                         log.info("started on :{}", port);
                     } else {
                         log.error("falied:{},{}", port, future1.cause().getMessage(), future1.cause());
                     }
-                }).channel().closeFuture().sync();
+                }).channel();
+        return new Server(channel);
+
     }
 
     public static void handle(String req, Channel channel) {
@@ -59,12 +82,16 @@ public class NettyUtils {
         channel.writeAndFlush("received");
     }
 
-    public static void addLast(SocketChannel ch) {
+    public static void lengthBasedFrame(SocketChannel ch) {
+        lengthBasedFrame(ch.pipeline());
+    }
+
+    public static void lengthBasedFrame(ChannelPipeline pipeline ) {
 
         LengthFieldBasedFrameDecoder fieldBasedFrameDecoder = new LengthFieldBasedFrameDecoder(1024 * 1024, 0, 2, 0, 2);
 
         LengthFieldPrepender lengthFieldPrepender = new LengthFieldPrepender(4, 0, false);
-        ch.pipeline()
+        pipeline
                 // in
                 .addLast(new StringDecoder())
                 .addLast(fieldBasedFrameDecoder)
@@ -85,8 +112,15 @@ public class NettyUtils {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        NettyUtils.addLast(ch);
-                        ch.pipeline().addLast(inboundHandlerAdapter);
+                        ChannelPipeline pipeline = ch.pipeline();
+//                        pipeline.addLast(new ChannelOutboundHandlerAdapter(){
+//                            @Override
+//                            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+//                                super.write(ctx, msg, promise);
+//                            }
+//                        });
+                        NettyUtils.lengthBasedFrame(pipeline);
+                        pipeline.addLast(inboundHandlerAdapter);
 //                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
 //                                    @Override
 //                                    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {

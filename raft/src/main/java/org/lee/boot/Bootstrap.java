@@ -10,7 +10,6 @@ import org.lee.heartbeat.HeartBeatSender;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
 import org.lee.rpc.netty.ServerNetty;
-import org.lee.rpc.socket.ServerSocketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +98,7 @@ public class Bootstrap {
 
         context.setServer(server);
 
-        globalConfig.getServers().forEach(context::addEndpoint);
+        globalConfig.getInitServers().forEach(context::addEndpoint);
         log.info("servers is:{}", context.getEndpoints());
         server.start();
         return server;

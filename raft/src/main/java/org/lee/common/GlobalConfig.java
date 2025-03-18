@@ -31,7 +31,7 @@ public class GlobalConfig {
     @Builder.Default
     private int retryTimes = 2; // if retry 'retryTimes' heartbeat are failed, follower start to election
     @Builder.Default
-    private Set<Endpoint> servers = Set.of();
+    private Set<Endpoint> initServers = Set.of();
 
     public String getMasterHost() {
         return masterHost;
@@ -66,7 +66,7 @@ public class GlobalConfig {
         config.setCurrentHost(configProperties.get("CurrentHost".toLowerCase()));
         config.setRetryTimes(Integer.parseInt(configProperties.get("RetryTimes".toLowerCase())));
         config.setPingSeg(Integer.parseInt(configProperties.get("PingSeg".toLowerCase())));
-        config.setServers(new ConcurrentSkipListSet<>(
+        config.setInitServers(new ConcurrentSkipListSet<>(
                 Arrays.stream(configProperties.get("servers").split(";"))
                         .map(Endpoint::build)
                         .collect(Collectors.toSet())));

@@ -4,11 +4,10 @@ import org.lee.common.Constant;
 import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.common.utils.ThreadUtil;
-import org.lee.election.domain.ActorStatusEntry;
-import org.lee.election.domain.CurrentActor;
-import org.lee.election.domain.ProposeResult;
-import org.lee.election.domain.ProposeResultContent;
+import org.lee.election.client.NodeUpdateSender;
+import org.lee.election.domain.*;
 import org.lee.election.handler.ElectionHandler;
+import org.lee.election.handler.NodeUpdateHandler;
 import org.lee.election.handler.SyncStatusHandler;
 import org.lee.heartbeat.MasterStatus;
 import org.lee.log.domain.SyncResult;
@@ -87,6 +86,9 @@ public class ElectionRaft implements Election {
             }
             if (propose.msg().existMaster()) {
                 ProposeResultContent msg = propose.msg();
+                if (CurrentActor.NEW_NODE.equals(context.getCurrentActor())){
+                    NodeUpdateSender.updateNode(NodeUpdate.ofNode(context.getSelf()), context);
+                }
                 context.becomeFollower(msg.host(),msg.port());
                 return CurrentActor.FOLLOWER;
             }
@@ -139,5 +141,6 @@ public class ElectionRaft implements Election {
     public void register(Server server) {
         server.register(Constant.ELECTION_PATH, new ElectionHandler(context));
         server.register(Constant.MASTER_STATUS_SYNC, new SyncStatusHandler(server));
+        server.register(Constant.NODE_UPDATE, new NodeUpdateHandler(context));
     }
 }

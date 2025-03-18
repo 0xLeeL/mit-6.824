@@ -16,8 +16,10 @@ import org.lee.store.handler.DbGetDataHandler;
 import org.lee.store.handler.DbPutDataHandler;
 
 import java.sql.Time;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,9 +34,9 @@ public class Context {
     @Builder.Default
     public MasterStatus masterStatus = MasterStatus.SUSPEND;
     @Builder.Default
-    private CurrentActor currentActor = CurrentActor.CANDIDATE;
+    private CurrentActor currentActor = CurrentActor.NEW_NODE;
 
-    private final Set<Endpoint> endpoints = new ConcurrentSkipListSet<>();
+    private final Map<String,Endpoint> endpoints = new ConcurrentHashMap<>();
     private final AtomicInteger epoch = new AtomicInteger(0);
     private final AtomicInteger indexOfEpoch = new AtomicInteger(0);
     private Server server;
@@ -48,18 +50,24 @@ public class Context {
 
 
     public Context() {
+        currentActor = CurrentActor.NEW_NODE;
+        masterStatus = MasterStatus.SUSPEND;
     }
 
-    public void removeEndpoint(Endpoint endpoint) {
-        endpoints.remove(endpoint);
-    }
+//    public void removeEndpoint(Endpoint endpoint) {
+//        endpoints.remove(endpoint.getAddr());
+//    }
 
     public void addEndpoint(Endpoint endpoint) {
-        endpoints.add(endpoint);
+        endpoints.put(endpoint.getAddr(),endpoint);
+    }
+
+    public Endpoint getEndpoint(Endpoint endpoint) {
+        return endpoints.get(endpoint.getAddr());
     }
 
     public Set<Endpoint> getEndpoints() {
-        return Set.copyOf(endpoints);
+        return Set.copyOf(endpoints.values());
     }
 
 
@@ -113,7 +121,10 @@ public class Context {
     }
 
     public boolean isMajority(int num) {
-        return num > getEndpoints().size() / 2;
+        return num >= getMajority();
+    }
+    public Integer getMajority() {
+        return getEndpoints().size() / 2 + 1;
     }
 
     public int getIndexOfEpoch() {
@@ -186,6 +197,20 @@ public class Context {
     }
 
     public Endpoint getMaster(){
-        return new Endpoint(server.getGlobalConfig().getMasterPort(),server.getGlobalConfig().getMasterHost());
+        return new Endpoint(server.getGlobalConfig().getMasterPort(),server.getGlobalConfig().getMasterHost(),CurrentActor.CANDIDATE.name());
+    }
+
+    public void updateMaster(Endpoint endpoint){
+        GlobalConfig globalConfig = server.getGlobalConfig();
+        globalConfig.setMasterHost(endpoint.host());
+        globalConfig.setMasterPort(endpoint.port());
+    }
+
+    public boolean isMaster(){
+        return CurrentActor.MASTER.equals(currentActor);
+    }
+
+    public Endpoint getSelf(){
+        return new Endpoint(server.getGlobalConfig().getCurrentPort(),server.getGlobalConfig().getCurrentHost(),currentActor.name());
     }
 }

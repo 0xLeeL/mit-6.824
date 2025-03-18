@@ -2,14 +2,11 @@ package org.lee.election;
 
 import lombok.extern.slf4j.Slf4j;
 import org.lee.common.Constant;
-import org.lee.election.domain.ActorStatusEntry;
-import org.lee.election.domain.Propose;
-import org.lee.election.domain.ProposeResult;
+import org.lee.election.domain.*;
 import org.lee.log.domain.LogEntry;
 import org.lee.log.domain.SyncResult;
 import org.lee.rpc.RpcCaller;
 import org.lee.rpc.factory.ClientFactory;
-import org.lee.rpc.netty.ClientNetty;
 
 /**
  * This class record the all server in the cluster.
@@ -17,9 +14,16 @@ import org.lee.rpc.netty.ClientNetty;
 @Slf4j
 public record Endpoint(
         int port,
-        String host
+        String host,
+        String status
 ) implements Comparable<Endpoint> {
+    public Endpoint(int port, String host){
+        this(port,host,"");
+    }
 
+    public String getAddr(){
+        return host + ":" + port;
+    }
     /**
      * launch an election request
      */
@@ -29,6 +33,15 @@ public record Endpoint(
                 Constant.ELECTION_PATH,
                 new Propose(epoch, currentPort),
                 ProposeResult.class
+        );
+    }
+
+
+    public NodeUpdateResult updateNode(NodeUpdate nodeUpdate) {
+        return call(
+                Constant.NODE_UPDATE,
+                nodeUpdate,
+                NodeUpdateResult.class
         );
     }
 
@@ -84,6 +97,6 @@ public record Endpoint(
 
     public static Endpoint build(String addr) {
         String[] split = addr.split(":");
-        return new Endpoint(Integer.parseInt(split[1]), split[0]);
+        return new Endpoint(Integer.parseInt(split[1]), split[0], CurrentActor.NEW_NODE.name());
     }
 }
