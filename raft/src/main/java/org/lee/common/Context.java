@@ -10,6 +10,7 @@ import org.lee.heartbeat.HeartBeatReceiver;
 import org.lee.heartbeat.HeartBeatSender;
 import org.lee.heartbeat.MasterStatus;
 import org.lee.log.LogSyncer;
+import org.lee.log.service.LogWriter;
 import org.lee.rpc.Server;
 import org.lee.store.handler.DbGetDataHandler;
 import org.lee.store.handler.DbPutDataHandler;
@@ -40,15 +41,17 @@ public class Context {
     private LogSyncer logSyncer;
     private HeartBeatSender heartBeatSender;
     private HeartBeatReceiver heartBeatReceiver;
+    private LogWriter logWriter;
     @Builder.Default
     private int acceptedEpoch = -1;
 
     private Timer timer;
 
 
-    public Context() {
+    public Context(GlobalConfig getGlobalConfig) {
         currentActor = CurrentActor.NEW_NODE;
         masterStatus = MasterStatus.SUSPEND;
+        logWriter = new LogWriter(getGlobalConfig.getStore());
     }
 
 //    public void removeEndpoint(Endpoint endpoint) {
@@ -165,8 +168,6 @@ public class Context {
         setMasterStatus(MasterStatus.HEALTH);
         server.getGlobalConfig().setMasterHost(getServer().getGlobalConfig().getCurrentHost());
         server.getGlobalConfig().setMasterPort(getServer().getGlobalConfig().getCurrentPort());
-        server.register(Constant.PUT_DATA_PATH,new DbPutDataHandler(this));
-        server.register(Constant.GET_DATA_PATH,new DbGetDataHandler());
     }
 
     /**
@@ -209,5 +210,9 @@ public class Context {
 
     public Endpoint getSelf(){
         return new Endpoint(server.getGlobalConfig().getCurrentPort(),server.getGlobalConfig().getCurrentHost(),currentActor.name());
+    }
+
+    public void close(){
+        logWriter.close();
     }
 }

@@ -3,6 +3,7 @@ package org.lee.tpc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lee.common.Context;
+import org.lee.common.GlobalConfig;
 import org.lee.common.utils.JsonUtil;
 import org.lee.election.Endpoint;
 import org.lee.log.domain.LogEntry;
@@ -59,7 +60,8 @@ public class TPCTest {
 
     @Test
     void test_write_success() {
-        Context context = new Context();
+        GlobalConfig globalConfig = new GlobalConfig();
+        Context context = new Context(globalConfig);
         context.addEndpoint(Endpoint.build("a:1"));
         context.addEndpoint(Endpoint.build("a:2"));
         context.addEndpoint(Endpoint.build("a:3"));
@@ -72,7 +74,8 @@ public class TPCTest {
 
     @Test
     void test_write_fail() {
-        Context context = new Context();
+        GlobalConfig globalConfig = new GlobalConfig();
+        Context context = new Context(globalConfig);
         context.addEndpoint(Endpoint.build("a:1"));
         context.addEndpoint(Endpoint.build("a:2"));
         context.addEndpoint(Endpoint.build("a:3"));
@@ -86,7 +89,8 @@ public class TPCTest {
     @Test
     void test_handler() {
 
-        Context context = new Context();
+        GlobalConfig globalConfig = new GlobalConfig();
+        Context context = new Context(globalConfig);
         context.addEndpoint(Endpoint.build("a:1"));
         context.addEndpoint(Endpoint.build("a:2"));
         context.addEndpoint(Endpoint.build("a:3"));
@@ -100,7 +104,8 @@ public class TPCTest {
     @Test
     void test_handler_in_rpc() {
 
-        Context context = new Context();
+        GlobalConfig globalConfig = new GlobalConfig();
+        Context context = new Context(globalConfig);
         context.addEndpoint(Endpoint.build("a:1"));
         context.addEndpoint(Endpoint.build("a:2"));
         context.addEndpoint(Endpoint.build("a:3"));

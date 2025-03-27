@@ -75,14 +75,16 @@ public record Endpoint(
                 SyncResult.class);
     }
 
-    private <R, T> R call(String path, T req, Class<R> cls) {
+    public  <R, T> R call(String path, T req, Class<R> cls) {
         RpcCaller<T, R> client = ClientFactory.ofNetty(host, port);
         client.connect();
-        return client.call(
+        R call = client.call(
                 path,
                 req,
                 cls
         );
+        client.close();
+        return call;
     }
 
     public String info() {
@@ -99,4 +101,5 @@ public record Endpoint(
         String[] split = addr.split(":");
         return new Endpoint(Integer.parseInt(split[1]), split[0], CurrentActor.NEW_NODE.name());
     }
+
 }

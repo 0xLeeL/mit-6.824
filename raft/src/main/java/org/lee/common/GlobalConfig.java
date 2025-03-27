@@ -30,6 +30,8 @@ public class GlobalConfig {
     private int retryTimes = 2; // if retry 'retryTimes' heartbeat are failed, follower start to election
     @Builder.Default
     private Set<Endpoint> initServers = Set.of();
+    @Builder.Default
+    private String store = "store";
 
     public void setMasterHost(String masterHost) {
         this.masterHost = masterHost;
@@ -51,6 +53,7 @@ public class GlobalConfig {
                 Arrays.stream(configProperties.get("servers").split(";"))
                         .map(Endpoint::build)
                         .collect(Collectors.toSet())));
+        config.setStore(properties.get("store").toString());
         return config;
     }
 }

@@ -1,12 +1,11 @@
 package org.lee.rpc;
 
+import org.lee.common.domain.Resp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -49,12 +48,17 @@ public class Dispatcher {
         @Override
         public void run() {
             while (true){
+                Request take = null;
+
                 try {
-                    Request take  = queue.take();
+                    take = queue.take();
                     Object handle = handler.handle(take.getRequest());
-                    take.getResponse().back(handle);
+                    take.getResponse().back(new Resp("success", handle, 200));
                 } catch (Throwable e) {
                     log.error(e.getMessage(),e);
+                    if (take != null) {
+                        take.getResponse().back(new Resp("exception :\n" + e.getMessage(), null, 500));
+                    }
                 }
             }
         }

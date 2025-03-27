@@ -1,5 +1,6 @@
 package org.lee.boot;
 
+import org.lee.common.Constant;
 import org.lee.common.Context;
 import org.lee.common.GlobalConfig;
 import org.lee.election.Election;
@@ -10,6 +11,8 @@ import org.lee.heartbeat.HeartBeatSender;
 import org.lee.log.LogSyncer;
 import org.lee.rpc.Server;
 import org.lee.rpc.netty.ServerNetty;
+import org.lee.store.handler.DbGetDataHandler;
+import org.lee.store.handler.DbPutDataHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +28,6 @@ public class Bootstrap {
     private GlobalConfig globalConfig;
 
     public Bootstrap() {
-        if (context == null) {
-            context = new Context();
-        }
-        if (globalConfig == null) {
-            globalConfig = new GlobalConfig();
-        }
     }
 
 
@@ -93,8 +90,21 @@ public class Bootstrap {
     }
 
     public Server init(){
+
+        if (globalConfig == null) {
+            globalConfig = new GlobalConfig();
+        }
+
+        if (context == null) {
+            context = new Context(globalConfig);
+        }
         Server server = new ServerNetty(this.globalConfig,this.context);
+
         LogSyncer.follow(server);
+
+        // register store
+        server.register(Constant.PUT_DATA_PATH,new DbPutDataHandler(context));
+        server.register(Constant.GET_DATA_PATH,new DbGetDataHandler());
 
         context.setServer(server);
 

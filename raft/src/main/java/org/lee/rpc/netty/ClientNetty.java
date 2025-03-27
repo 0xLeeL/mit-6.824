@@ -3,6 +3,7 @@ package org.lee.rpc.netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.lee.common.domain.Resp;
 import org.lee.common.utils.JsonUtil;
 import org.lee.rpc.Request;
 import org.lee.rpc.RpcCaller;
@@ -67,10 +68,15 @@ public class ClientNetty<T, R> implements RpcCaller<T, R> {
         try {
             boolean await = latch.await(10, TimeUnit.SECONDS);
             if (await) {
+                Resp resp = JsonUtil.fromJson(result, Resp.class);
                 if (String.class.equals(resultClass)) {
-                    return (R) result;
+                    return (R) resp.getData();
                 }
-                return JsonUtil.fromJson(result, resultClass);
+                if (resp.ok()) {
+                    return JsonUtil.fromJson(JsonUtil.toJson(resp.getData()), resultClass);
+                }
+                log.error("发送失败了");
+                return null;
             }
             // await is false , read timeout.
             return null;

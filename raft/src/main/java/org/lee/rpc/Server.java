@@ -61,4 +61,9 @@ public abstract class Server implements AutoCloseable {
     public Dispatcher getDispatcher() {
         return dispatcher;
     }
+
+    @Override
+    public void close() throws Exception {
+        context.close();
+    }
 }

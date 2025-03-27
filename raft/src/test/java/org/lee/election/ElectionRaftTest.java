@@ -80,7 +80,7 @@ public class ElectionRaftTest {
     }
 
     Pair<ElectionRaft, Server> getElection(int port) {
-        Server server = StartServer.start(port);
+        Server server = StartServer.start(port,"logFile");
         ElectionRaft electionRaft1 = new ElectionRaft(server.getContext(), server.getGlobalConfig());
         electionRaft1.register(server);
         return Pair.of(electionRaft1, server);

@@ -58,9 +58,8 @@ public class ServerNetty extends Server {
     @Override
     public void close() {
         try {
-            System.out.println("close");
-            throw new IOException();
-        } catch (IOException e) {
+            super.close();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

@@ -25,8 +25,9 @@ public class HeartBeatTest {
 
     @Test
     void test_ping() throws Exception {
-        Context context = new Context();
-        Server server = Bootstrap.builder().global(context).globalConfig(new GlobalConfig()).startServer();
+        GlobalConfig globalConfig1 = new GlobalConfig();
+        Context context = new Context(globalConfig1);
+        Server server = Bootstrap.builder().global(context).globalConfig(globalConfig1).startServer();
         HeartBeatReceiver receiver = new HeartBeatReceiver(server);
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         AtomicInteger heartbeatTimes = new AtomicInteger(0);
@@ -50,9 +51,9 @@ public class HeartBeatTest {
 
     @Test
     void test_ping_timeout() {
-        Context context = new Context();
-        context.setMasterStatus(MasterStatus.HEALTH);
         GlobalConfig globalConfig = new GlobalConfig();
+        Context context = new Context(globalConfig);
+        context.setMasterStatus(MasterStatus.HEALTH);
         globalConfig.setPingSeg(50);
         Election election = mock(Election.class);
         HeartBeatSender heartBeatSender = new HeartBeatSender(context, globalConfig, election);
