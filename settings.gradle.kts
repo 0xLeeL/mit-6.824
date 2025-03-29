@@ -1,4 +1,5 @@
 
 rootProject.name = "mit-6.824"
 include("raft")
-include("raft2")
+include("cluster-with-zookeeper")
+include("task")
