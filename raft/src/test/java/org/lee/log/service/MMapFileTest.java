@@ -15,22 +15,20 @@ public class MMapFileTest {
 
     @Test
     void test_append_log_entry() throws Exception {
-        MMapFile mmapFile = new MMapFile("demo.txt");
+        MMapFile mmapFile = new MMapFile("build/demo.txt");
         mmapFile.append(LogEntry.ofPutData(2, 2, "test").encode());
         mmapFile.flush();
         mmapFile.close();
-    }
-    @Test
-    void test_append_log_entry1() throws Exception {
-        MMapFile mmapFile = new MMapFile("C:\\Users\\oo\\Desktop\\code\\java\\mit-6.824\\store3\\entry.bin");
-        mmapFile.append(LogEntry.ofPutData(2, 2, "test").encode());
-        mmapFile.flush();
-        mmapFile.close();
-    }
 
+        mmapFile = new MMapFile("build/demo.txt");
+
+        List<LogEntry> read = mmapFile.read();
+        Assertions.assertNotNull(read);
+        read.forEach(System.out::println);
+    }
     @Test
     void test_read_log_entry() throws Exception {
-        MMapFile mmapFile = new MMapFile("MMapFileTest-test_read_log_entry-demo-"+".txt");
+        MMapFile mmapFile = new MMapFile("build/MMapFileTest-test_read_log_entry-demo-"+".txt");
         mmapFile.append(LogEntry.ofPutData(1, 2, "test").encode());
         mmapFile.flush();
         mmapFile.close();
@@ -41,16 +39,8 @@ public class MMapFileTest {
     }
 
     @Test
-    void test_read_log_entry_only() throws Exception {
-        MMapFile mmapFile = new MMapFile("demo.txt");
-
-        List<LogEntry> read = mmapFile.read();
-        Assertions.assertNotNull(read);
-        read.forEach(System.out::println);
-    }
-    @Test
     void test_read_log_entry_only_1() {
-        MMapFile mmapFile = new MMapFile("store_83");
+        MMapFile mmapFile = new MMapFile("build/store_83");
 
         List<LogEntry> read = mmapFile.read();
         Assertions.assertNotNull(read);
@@ -173,7 +163,7 @@ public class MMapFileTest {
     @Test
     void test_append() throws Exception {
 
-        RandomAccessFile rw = new RandomAccessFile("a.txt", "rw");
+        RandomAccessFile rw = new RandomAccessFile("build/a.txt", "rw");
         MappedByteBuffer map = rw.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 2048);
         byte[] bytes = "hello".getBytes();
         ByteBuffer allocate = ByteBuffer.allocate(bytes.length + 4);
@@ -186,14 +176,10 @@ public class MMapFileTest {
     @Test
     void test_mmap_size_than_file_size() throws Exception {
         extracted();
-
-//        RandomAccessFile rw = new RandomAccessFile("a.txt", "rw");
-//        MappedByteBuffer map = rw.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 2048);
-//        map.put("hello".getBytes());
     }
 
     private static void extracted() throws IOException {
-        RandomAccessFile rw = new RandomAccessFile("a.txt", "rw");
+        RandomAccessFile rw = new RandomAccessFile("build/a.txt", "rw");
         MappedByteBuffer map = rw.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 1024);
         ByteBuffer wrap = ByteBuffer.wrap("hello".getBytes());
         map.put(wrap);
